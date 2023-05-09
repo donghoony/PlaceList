@@ -2,6 +2,7 @@ package org.konkuk.placelist
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import org.konkuk.placelist.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding

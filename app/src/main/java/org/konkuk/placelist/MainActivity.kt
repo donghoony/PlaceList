@@ -1,7 +1,7 @@
 package org.konkuk.placelist
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import org.konkuk.placelist.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {

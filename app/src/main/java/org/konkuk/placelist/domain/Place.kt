@@ -5,4 +5,5 @@ import org.konkuk.placelist.domain.enums.Coordinate
 class Place {
     lateinit var name: String
     lateinit var location: Coordinate
+    var detectRange: Double = 0.0
 }

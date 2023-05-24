@@ -9,5 +9,5 @@ class Todo : Task() {
 
     // About Places
     lateinit var situation: PlaceSituation
-    var detectRange: Double = 0.0
+
 }

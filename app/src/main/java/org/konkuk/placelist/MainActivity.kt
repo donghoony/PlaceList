@@ -13,8 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import org.konkuk.placelist.databinding.ActivityMainBinding
 
-@RequiresApi(Build.VERSION_CODES.Q)
-
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,6 +23,7 @@ class MainActivity : AppCompatActivity() {
         getPermissions()
     }
 
+
     private fun getPermissions() {
         lateinit var dialog: AlertDialog
         lateinit var backgroundDialog: AlertDialog
@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         val permissions = arrayOf(
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
+            android.Manifest.permission.POST_NOTIFICATIONS,
         )
 
         fun checkPermission(permission: String) =

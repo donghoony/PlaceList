@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        initButton()
         getPermissions()
     }
 
@@ -78,4 +79,13 @@ class MainActivity : AppCompatActivity() {
         if (!permissions.all{permission -> checkPermission(permission)}) dialog.show()
         else if (!checkPermission(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)) backgroundDialog.show()
     }
+
+    private fun initButton() {
+        binding.btnPlus.setOnClickListener {
+            AddPlaceDialogFragment().show(
+                supportFragmentManager, "AddPlace"
+            )
+        }
+    }
+
 }

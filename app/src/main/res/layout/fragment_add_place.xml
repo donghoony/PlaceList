@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    tools:context=".AddPlaceFragment">
+    tools:context=".AddPlaceDialogFragment">
 
     <!-- 제목 -->
     <LinearLayout
@@ -16,6 +16,7 @@
 
         <!-- 닫기 버튼 -->
         <ImageButton
+            android:id="@+id/closeBtn"
             android:layout_width="48dp"
             android:layout_height="37dp"
             android:adjustViewBounds="true"
@@ -37,6 +38,7 @@
 
         <!-- 체크 버튼 -->
         <ImageButton
+            android:id="@+id/submitBtn"
             android:layout_width="48dp"
             android:layout_height="37dp"
             android:adjustViewBounds="true"
@@ -73,9 +75,9 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="20dp"
             android:padding="15dp"
-            android:text="장소 이름을 입력하세요"
+            android:hint="장소 이름을 입력하세요"
             android:inputType="text"
-            android:textColor="@color/gray2"
+            android:textColor="@color/colorPrimary"
             android:background="@drawable/textstyle3"
             android:fontFamily="@font/nanumsquareroundb"
             android:textSize="15dp">
@@ -99,11 +101,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:padding="15dp"
-            android:text="주소를 입력하세요"
+            android:hint="주소를 입력하세요"
             android:inputType="text"
             android:background="@drawable/textstyle3"
             android:fontFamily="@font/nanumsquareroundb"
-            android:textColor="@color/gray2"
+            android:textColor="@color/colorPrimary"
             android:textSize="15dp"
             android:drawableLeft="@drawable/ic_search_gray"
             android:drawablePadding="10dp">

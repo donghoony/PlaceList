@@ -109,10 +109,11 @@ class MapFragment : Fragment(),OnMapReadyCallback {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mark, 15.0f))
         mMap.setOnMapClickListener {
             Log.d(ContentValues.TAG, "onMapClick :"+it.latitude+it.longitude)
+            var coorloc=Coordinate(it.longitude,it.latitude)
             mark=LatLng(it.latitude,it.longitude)
             marker!!.remove()
             marker=mMap.addMarker(MarkerOptions().position(mark).title("이름"))!!
-
+            model.setLiveData(coorloc)
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, 15.0f))
 
         }

@@ -16,19 +16,21 @@
 
         <!-- 닫기 버튼 -->
         <ImageButton
-            android:layout_width="48dp"
+            android:layout_width="0dp"
             android:layout_height="37dp"
             android:adjustViewBounds="true"
             android:background="@android:color/transparent"
             android:layout_weight="1"
+            android:layout_gravity="left"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/btn_close">
         </ImageButton>
 
         <!-- 내 장소 추가 -->
         <TextView
-            android:layout_width="304dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="5"
             android:layout_gravity="center_horizontal"
             android:fontFamily="@font/nanumsquareroundb"
             android:gravity="center"
@@ -37,7 +39,7 @@
 
         <!-- 체크 버튼 -->
         <ImageButton
-            android:layout_width="48dp"
+            android:layout_width="0dp"
             android:layout_height="37dp"
             android:adjustViewBounds="true"
             android:background="@android:color/transparent"
@@ -98,16 +100,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="@drawable/textstyle3"
+            android:drawableLeft="@drawable/ic_search_gray"
+            android:drawablePadding="10dp"
+            android:fontFamily="@font/nanumsquareroundb"
+            android:inputType="text"
             android:padding="15dp"
             android:text="주소를 입력하세요"
-            android:inputType="text"
-            android:background="@drawable/textstyle3"
-            android:fontFamily="@font/nanumsquareroundb"
             android:textColor="@color/gray2"
-            android:textSize="15dp"
-            android:drawableLeft="@drawable/ic_search_gray"
-            android:drawablePadding="10dp">
-        </EditText>
+            android:textSize="15dp"></EditText>
     </LinearLayout>
 
 </LinearLayout>

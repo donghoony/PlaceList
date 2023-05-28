@@ -1,6 +1,6 @@
 package org.konkuk.placelist.data.services
 
-import org.konkuk.placelist.data.api.ApiKey.Companion.KAKAO_API_KEY
+import org.konkuk.placelist.BuildConfig.KAKAO_API_KEY
 import org.konkuk.placelist.data.models.tmcoordinates.TmCoordinatesResponse
 import retrofit2.Response
 import retrofit2.http.GET

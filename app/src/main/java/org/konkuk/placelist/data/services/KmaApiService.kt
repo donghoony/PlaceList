@@ -1,6 +1,6 @@
 package org.konkuk.placelist.data.services
 
-import org.konkuk.placelist.data.api.ApiKey.Companion.PUBLIC_DATA_SERVICE_KEY
+import org.konkuk.placelist.BuildConfig.PUBLIC_DATA_SERVICE_KEY
 import org.konkuk.placelist.data.models.weatherforecast.WeatherForecastResponse
 import retrofit2.Response
 import retrofit2.http.GET

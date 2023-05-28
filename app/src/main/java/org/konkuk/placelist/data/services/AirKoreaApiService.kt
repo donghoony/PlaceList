@@ -1,6 +1,7 @@
 package org.konkuk.placelist.data.services
 
-import org.konkuk.placelist.data.api.ApiKey.Companion.PUBLIC_DATA_SERVICE_KEY
+import org.konkuk.placelist.BuildConfig
+import org.konkuk.placelist.BuildConfig.PUBLIC_DATA_SERVICE_KEY
 import org.konkuk.placelist.data.models.airquality.AirQualityResponse
 import org.konkuk.placelist.data.models.monitoringstation.MonitoringStationsResponse
 import retrofit2.Response

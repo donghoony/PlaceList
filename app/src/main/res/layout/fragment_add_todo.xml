@@ -16,7 +16,7 @@
 
         <!-- 닫기 버튼 -->
         <ImageButton
-            android:layout_width="48dp"
+            android:layout_width="0dp"
             android:layout_height="37dp"
             android:layout_weight="1"
             android:adjustViewBounds="true"
@@ -27,8 +27,9 @@
 
         <!-- 할 일 -->
         <TextView
-            android:layout_width="304dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="5"
             android:layout_gravity="center_horizontal"
             android:fontFamily="@font/nanumsquareroundb"
             android:gravity="center"
@@ -37,7 +38,7 @@
 
         <!-- 체크 버튼 -->
         <ImageButton
-            android:layout_width="48dp"
+            android:layout_width="0dp"
             android:layout_height="37dp"
             android:layout_weight="1"
             android:adjustViewBounds="true"
@@ -190,7 +191,7 @@
 
             <TextView
                 android:id="@+id/sun"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="일"
@@ -200,7 +201,7 @@
 
             <TextView
                 android:id="@+id/mon"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="월"
@@ -210,7 +211,7 @@
 
             <TextView
                 android:id="@+id/tue"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="화"
@@ -220,7 +221,7 @@
 
             <TextView
                 android:id="@+id/wed"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="수"
@@ -230,7 +231,7 @@
 
             <TextView
                 android:id="@+id/thu"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="목"
@@ -240,7 +241,7 @@
 
             <TextView
                 android:id="@+id/fri"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="금"
@@ -250,7 +251,7 @@
 
             <TextView
                 android:id="@+id/sat"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="토"

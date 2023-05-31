@@ -1,8 +1,5 @@
 package org.konkuk.placelist.domain
 
-import org.konkuk.placelist.domain.enums.Coordinate
+import com.google.android.gms.maps.model.LatLng
 
-class Place {
-    lateinit var name: String
-    lateinit var location: Coordinate
-}
+data class Place(var name: String, var location: LatLng)

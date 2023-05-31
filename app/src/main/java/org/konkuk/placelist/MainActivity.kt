@@ -6,22 +6,42 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.gms.maps.model.LatLng
 import org.konkuk.placelist.databinding.ActivityMainBinding
+import org.konkuk.placelist.domain.Place
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), AddPlaceListener {
     lateinit var binding: ActivityMainBinding
+    lateinit var placeAdapter : PlaceAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initButton()
+        initPlaceView()
         getPermissions()
+    }
+
+    private fun initPlaceView() {
+        binding.placelist.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        placeAdapter = PlaceAdapter()
+        placeAdapter.itemClickListener = object : PlaceAdapter.OnItemClickListener{
+            override fun onItemClick(data: Place, pos: Int) {
+                Toast.makeText(this@MainActivity,
+                    "${data.name} : ${data.location.latitude}, ${data.location.longitude}",
+                    Toast.LENGTH_SHORT).show()
+            }
+        }
+        binding.placelist.adapter = placeAdapter
     }
 
 
@@ -88,4 +108,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun addPlace(name: String, coordinate: LatLng) {
+        placeAdapter.addPlace(name, coordinate)
+    }
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Point
 import android.location.Geocoder
 import android.os.Build
+import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.KeyEvent.KEYCODE_ENTER
@@ -15,18 +16,22 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import com.google.android.gms.maps.model.LatLng
 import org.konkuk.placelist.databinding.FragmentAddPlaceBinding
-import org.konkuk.placelist.domain.enums.Coordinate
 import java.util.Locale
 import android.os.Bundle as Bundle1
-
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class AddPlaceDialogFragment : DialogFragment() {
     lateinit var binding: FragmentAddPlaceBinding
+    lateinit var addPlaceListener: AddPlaceListener
     val model : MyViewModel by activityViewModels()
     var text = ""
+    var selectedLocation = LatLng(0.0, 0.0)
 
     override fun onCreate(savedInstanceState: Bundle1?) {
         super.onCreate(savedInstanceState)
+        try{ addPlaceListener = context as AddPlaceListener
+        } catch (e: ClassCastException) { Log.e("E", "Cast Failed")}
         isCancelable = false
     }
 
@@ -58,24 +63,25 @@ class AddPlaceDialogFragment : DialogFragment() {
                 dismiss()
             }
             this.submitBtn.setOnClickListener {
-                // TODO: Add Place in adapter
+                addPlaceListener.addPlace(binding.placename.text.toString(), selectedLocation)
+                dismiss()
             }
         }
     }
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun initGeocoder() {
         val geocoder = Geocoder(requireActivity(), Locale.KOREA)
 
-        model.location.observe(viewLifecycleOwner, Observer { it ->
+        model.location.observe(viewLifecycleOwner, Observer { it: LatLng ->
             geocoder.getFromLocation(it.latitude, it.longitude, 1) { location ->
-                binding.location.setText(location[0].getAddressLine(0))
+//                binding.location.setText(location[0].getAddressLine(0))
+                selectedLocation = LatLng(location[0].latitude, location[0].longitude)
             }
         })
 
         binding.location.setOnKeyListener { v, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KEYCODE_ENTER) {
                 geocoder.getFromLocationName(binding.location.text.toString(), 1){ addresses ->
-                    model.setLiveData(Coordinate(addresses[0].latitude, addresses[0].longitude))
+                    model.setLiveData(LatLng(addresses[0].latitude, addresses[0].longitude))
                 }
             }
             true

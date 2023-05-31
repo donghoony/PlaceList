@@ -3,6 +3,7 @@ package org.konkuk.placelist
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.model.LatLng
 import org.konkuk.placelist.databinding.PlacesRowBinding
 import org.konkuk.placelist.domain.Place
 
@@ -11,7 +12,7 @@ class PlaceAdapter : RecyclerView.Adapter<PlaceAdapter.ViewHolder>(){
     interface OnItemClickListener{
         fun onItemClick(data: Place, pos: Int)
     }
-    val itemClickListener : OnItemClickListener? = null
+    var itemClickListener : OnItemClickListener? = null
     inner class ViewHolder(val binding: PlacesRowBinding) : RecyclerView.ViewHolder(binding.root){
         init{
             binding.root.setOnClickListener{
@@ -33,5 +34,10 @@ class PlaceAdapter : RecyclerView.Adapter<PlaceAdapter.ViewHolder>(){
             val place = items[position]
             this.nameField.text = place.name
         }
+    }
+
+    fun addPlace(name: String, coordinate: LatLng) {
+        items.add(Place(name, coordinate))
+        notifyItemChanged(items.size)
     }
 }

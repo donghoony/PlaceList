@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".AddTodoFragment">
+
+    <!-- 상단 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <!-- 닫기 버튼 -->
+        <ImageButton
+            android:layout_width="48dp"
+            android:layout_height="37dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/btn_close">
+        </ImageButton>
+
+        <!-- 할 일 -->
+        <TextView
+            android:layout_width="304dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:fontFamily="@font/nanumsquareroundb"
+            android:gravity="center"
+            android:text="할 일"
+            android:textSize="20sp" />
+
+        <!-- 체크 버튼 -->
+        <ImageButton
+            android:layout_width="48dp"
+            android:layout_height="37dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/btn_check">
+        </ImageButton>
+    </LinearLayout>
+
+    <!-- 하단 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- 해야 할 일 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nanumsquareroundr"
+            android:text="해야 할 일"
+            android:textColor="@color/gray3"
+            android:textSize="13dp">
+        </TextView>
+
+        <!-- 기억해야 할 일을 적어주세요 -->
+        <EditText
+            android:id="@+id/placename"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:isScrollContainer="true"
+            android:maxHeight="84dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/textstyle3"
+            android:fontFamily="@font/nanumsquareroundb"
+            android:inputType="textMultiLine"
+            android:padding="15dp"
+            android:text="기억해야 할 일을 적어주세요"
+            android:textColor="@color/gray2"
+            android:textSize="15dp">
+        </EditText>
+
+        <!-- 알림 설정 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nanumsquareroundr"
+            android:text="알림 설정"
+            android:textColor="@color/gray3"
+            android:textSize="13dp">
+        </TextView>
+
+        <!-- 나갈 때 / 들어올 때 토글 버튼 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <!-- 나갈 때 토글 버튼 -->
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:textOn="나갈 때"
+                android:textOff="나갈 때"
+                android:textColor="#FFE7E7"
+                android:textSize="15dp"
+                android:fontFamily="@font/nanumsquareroundb"
+                android:drawableLeft="@drawable/ic_togglecheck_off"
+                android:background="@drawable/toggle_off"
+                android:onClick="onToggleClicked" />
+
+            <!-- 들어올 때 토글 버튼 -->
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginLeft="15dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:textOn="들어올 때"
+                android:textOff="들어올 때"
+                android:textColor="#FFE7E7"
+                android:textSize="15dp"
+                android:fontFamily="@font/nanumsquareroundb"
+                android:drawableLeft="@drawable/ic_togglecheck_off"
+                android:background="@drawable/toggle_off"
+                android:onClick="onToggleClicked"/>
+
+        </LinearLayout>
+
+        <!-- 시간 설정 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/nanumsquareroundr"
+                android:text="시간 설정"
+                android:layout_gravity="center"
+                android:textColor="@color/gray3"
+                android:textSize="13dp">
+            </TextView>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- 시간 설정 스위치 버튼 -->
+            <Switch
+                android:id="@+id/timeonoff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:track="@drawable/switch_onoff"
+                android:thumb="@drawable/switch_thumb"
+                android:switchMinWidth="0dp"
+                android:textOff=""
+                android:textOn=""
+                android:thumbTextPadding="15dp"/>
+
+        </LinearLayout>
+
+        <!-- 반복 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:fontFamily="@font/nanumsquareroundr"
+            android:text="반복"
+            android:textColor="@color/gray3"
+            android:textSize="13dp">
+        </TextView>
+
+        <!-- 요일 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/sun"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="일"
+                android:textColor="@drawable/repeat_onoff"
+                android:fontFamily="@font/nanumsquareroundb"
+                android:textSize="15dp"/>
+
+            <TextView
+                android:id="@+id/mon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="월"
+                android:textColor="@drawable/repeat_onoff"
+                android:fontFamily="@font/nanumsquareroundb"
+                android:textSize="15dp"/>
+
+            <TextView
+                android:id="@+id/tue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="화"
+                android:textColor="@drawable/repeat_onoff"
+                android:fontFamily="@font/nanumsquareroundb"
+                android:textSize="15dp"/>
+
+            <TextView
+                android:id="@+id/wed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="수"
+                android:textColor="@drawable/repeat_onoff"
+                android:fontFamily="@font/nanumsquareroundb"
+                android:textSize="15dp"/>
+
+            <TextView
+                android:id="@+id/thu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="목"
+                android:textColor="@drawable/repeat_onoff"
+                android:fontFamily="@font/nanumsquareroundb"
+                android:textSize="15dp"/>
+
+            <TextView
+                android:id="@+id/fri"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="금"
+                android:textColor="@drawable/repeat_onoff"
+                android:fontFamily="@font/nanumsquareroundb"
+                android:textSize="15dp"/>
+
+            <TextView
+                android:id="@+id/sat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="토"
+                android:textColor="@drawable/repeat_onoff"
+                android:fontFamily="@font/nanumsquareroundb"
+                android:textSize="15dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

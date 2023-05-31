@@ -6,7 +6,7 @@ import org.konkuk.placelist.domain.enums.Coordinate
 
 class MyViewModel:ViewModel() {
     val location= MutableLiveData<Coordinate>()
-    fun setLiveData(loca:Coordinate){
-            location.value=loca
+    fun setLiveData(loca: Coordinate){
+         location.postValue(loca)
     }
 }

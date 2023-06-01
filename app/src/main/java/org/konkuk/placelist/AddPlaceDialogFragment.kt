@@ -15,7 +15,6 @@ import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.google.android.gms.maps.model.LatLng
 import org.konkuk.placelist.databinding.FragmentAddPlaceBinding
 import java.util.Locale
@@ -55,7 +54,7 @@ class AddPlaceDialogFragment : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        context?.dialogFragmentResize(this@AddPlaceDialogFragment, 1f, 0.7f)
+        context?.dialogFragmentResize(1f, 0.7f)
     }
     private fun initButtons() {
         with(binding){
@@ -71,12 +70,11 @@ class AddPlaceDialogFragment : DialogFragment() {
     private fun initGeocoder() {
         val geocoder = Geocoder(requireActivity(), Locale.KOREA)
 
-        model.location.observe(viewLifecycleOwner, Observer { it: LatLng ->
+        model.location.observe(viewLifecycleOwner) { it: LatLng ->
             geocoder.getFromLocation(it.latitude, it.longitude, 1) { location ->
-//                binding.location.setText(location[0].getAddressLine(0))
                 selectedLocation = LatLng(location[0].latitude, location[0].longitude)
             }
-        })
+        }
 
         binding.location.setOnKeyListener { v, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KEYCODE_ENTER) {
@@ -84,11 +82,11 @@ class AddPlaceDialogFragment : DialogFragment() {
                     model.setLiveData(LatLng(addresses[0].latitude, addresses[0].longitude))
                 }
             }
-            true
+            false
         }
     }
 
-    private fun Context.dialogFragmentResize(addPlaceDialogFragment: AddPlaceDialogFragment, w: Float, h: Float) {
+    private fun Context.dialogFragmentResize(w: Float, h: Float) {
         val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         if (Build.VERSION.SDK_INT < 30) {
             val display = windowManager.defaultDisplay

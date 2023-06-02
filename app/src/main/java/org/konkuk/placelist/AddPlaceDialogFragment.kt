@@ -1,7 +1,9 @@
 package org.konkuk.placelist
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.Point
+import android.graphics.drawable.ColorDrawable
 import android.location.Geocoder
 import android.os.Build
 import android.util.Log
@@ -19,6 +21,8 @@ import com.google.android.gms.maps.model.LatLng
 import org.konkuk.placelist.databinding.FragmentAddPlaceBinding
 import java.util.Locale
 import android.os.Bundle as Bundle1
+
+
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class AddPlaceDialogFragment : DialogFragment() {
     lateinit var binding: FragmentAddPlaceBinding
@@ -54,7 +58,11 @@ class AddPlaceDialogFragment : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        context?.dialogFragmentResize(1f, 0.7f)
+        context?.dialogFragmentResize(1f, 0.6f)
+
+        val window = dialog!!.window
+//        window!!.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        window!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
     }
     private fun initButtons() {
         with(binding){
@@ -79,6 +87,7 @@ class AddPlaceDialogFragment : DialogFragment() {
         binding.location.setOnKeyListener { v, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KEYCODE_ENTER) {
                 geocoder.getFromLocationName(binding.location.text.toString(), 1){ addresses ->
+                    Log.i("M", "${addresses[0].latitude}, ${addresses[0].longitude}")
                     model.setLiveData(LatLng(addresses[0].latitude, addresses[0].longitude))
                 }
             }

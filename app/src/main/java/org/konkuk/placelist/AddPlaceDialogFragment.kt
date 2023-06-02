@@ -1,10 +1,10 @@
 package org.konkuk.placelist
 
-import android.location.Address
+import android.content.Context
+import android.graphics.Point
 import android.location.Geocoder
 import android.os.Build
-import android.text.Editable
-import android.text.TextWatcher
+import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.KeyEvent.KEYCODE_ENTER
@@ -12,25 +12,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
+import com.google.android.gms.maps.model.LatLng
 import org.konkuk.placelist.databinding.FragmentAddPlaceBinding
-import org.konkuk.placelist.domain.enums.Coordinate
-import java.util.*
+import java.util.Locale
 import android.os.Bundle as Bundle1
-
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class AddPlaceDialogFragment : DialogFragment() {
     lateinit var binding: FragmentAddPlaceBinding
-    //val geocoder= Geocoder(requireActivity())
-    //val myviewModel:MyViewModel by viewModels()
-    val model:MyViewModel by activityViewModels()
-    var text=""
+    lateinit var addPlaceListener: AddPlaceListener
+    val model : MyViewModel by activityViewModels()
+    var text = ""
+    var selectedLocation = LatLng(0.0, 0.0)
+
     override fun onCreate(savedInstanceState: Bundle1?) {
         super.onCreate(savedInstanceState)
+        try{ addPlaceListener = context as AddPlaceListener
+        } catch (e: ClassCastException) { Log.e("E", "Cast Failed")}
         isCancelable = false
     }
 
@@ -48,52 +48,60 @@ class AddPlaceDialogFragment : DialogFragment() {
             this?.horizontalMargin = 0f
         }
         initButtons()
-        initgeocoder()
+        initGeocoder()
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        context?.dialogFragmentResize(1f, 0.7f)
+    }
     private fun initButtons() {
-
         with(binding){
             this.closeBtn.setOnClickListener {
                 dismiss()
             }
             this.submitBtn.setOnClickListener {
-                // TODO: Add Place in adapter
+                addPlaceListener.addPlace(binding.placename.text.toString(), selectedLocation)
+                dismiss()
+            }
+        }
+    }
+    private fun initGeocoder() {
+        val geocoder = Geocoder(requireActivity(), Locale.KOREA)
+
+        model.location.observe(viewLifecycleOwner) { it: LatLng ->
+            geocoder.getFromLocation(it.latitude, it.longitude, 1) { location ->
+                selectedLocation = LatLng(location[0].latitude, location[0].longitude)
             }
         }
 
-
-    }
-    private fun initgeocoder(){
-        val geocoder= Geocoder(requireActivity(), Locale.KOREA)
-        model.location.observe(viewLifecycleOwner, Observer {
-           /* binding.location.setText((geocoder.getFromLocation(it.latitude,it.longitude,1){
-
-            }))*/
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                geocoder.getFromLocation(it.latitude,it.longitude,1){
-                    it->
-                    binding.location.setText(it[0].getAddressLine(0))
-                }
-            }
-        })
         binding.location.setOnKeyListener { v, keyCode, event ->
-            if(event.action==KeyEvent.ACTION_DOWN&&keyCode==KEYCODE_ENTER){
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    geocoder.getFromLocationName(binding.location.text.toString(),1
-                    ) { addresses ->
-                        val cool: Coordinate =
-                            Coordinate(addresses[0].longitude, addresses[0].latitude)
-                        model.setLiveData(cool)
-
-                    }
+            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KEYCODE_ENTER) {
+                geocoder.getFromLocationName(binding.location.text.toString(), 1){ addresses ->
+                    model.setLiveData(LatLng(addresses[0].latitude, addresses[0].longitude))
                 }
-
-
             }
-            true
+            false
         }
     }
 
+    private fun Context.dialogFragmentResize(w: Float, h: Float) {
+        val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        if (Build.VERSION.SDK_INT < 30) {
+            val display = windowManager.defaultDisplay
+            val size = Point()
+            display.getSize(size)
+            val window = dialog?.window
+            val x = (size.x * w).toInt()
+            val y = (size.y * h).toInt()
+            window?.setLayout(x, y)
+        } else {
+            val rect = windowManager.currentWindowMetrics.bounds
+            val window = dialog?.window
+            val x = (rect.width() * w).toInt()
+            val y = (rect.height() * h).toInt()
+            window?.setLayout(x, y)
+        }
+    }
 }

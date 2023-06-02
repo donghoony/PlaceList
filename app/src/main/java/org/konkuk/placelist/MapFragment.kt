@@ -4,21 +4,17 @@ import android.Manifest
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Context.LOCATION_SERVICE
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Geocoder
-import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -29,72 +25,51 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import org.konkuk.placelist.databinding.FragmentMapBinding
-import org.konkuk.placelist.domain.Place
-import org.konkuk.placelist.domain.enums.Coordinate
 
-
-class MapFragment : Fragment(),OnMapReadyCallback {
+class MapFragment : Fragment(), OnMapReadyCallback {
     lateinit var mMap: GoogleMap
-    //val geocoder=Geocoder(activity as MainActivity)
-    val model:MyViewModel by activityViewModels()
-    var binding: FragmentMapBinding?=null
-    lateinit var mLayout:View
-    var mLocationManager: LocationManager? = null
-    var mLocationListener: LocationListener? = null
-    var marker:Marker?=null
-    var placeinfo: Place = Place()
+    val model : MyViewModel by activityViewModels()
+    var binding : FragmentMapBinding? = null
+    lateinit var mLayout : View
+    var mLocationManager : LocationManager? = null
+    var mLocationListener : LocationListener? = null
+    var marker : Marker? =null
     val activityResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()){
-        if(it.resultCode== Activity.RESULT_OK){ }
+        if(it.resultCode == Activity.RESULT_OK){ }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding= FragmentMapBinding.inflate(layoutInflater,container,false)
         val mapFragment = childFragmentManager.findFragmentById(org.konkuk.placelist.R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
         return binding!!.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mLocationManager = this.requireActivity().getSystemService(LOCATION_SERVICE) as LocationManager
-        mLocationListener = object : LocationListener {
-
-            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-            override fun onLocationChanged(location: Location) {
-                var lat = 0.0
-                var lng = 0.0
-                if (location != null) {
-                    lat = location.latitude
-                    lng = location.longitude
-                    Log.d("GmapViewFragment", "Lat: ${lat}, lon: ${lng}")
-                }
-                var coorloc=Coordinate(lng,lat)
-                var currentLocation = LatLng(lat, lng)
-                val Mark= mMap!!.addMarker(MarkerOptions().position(currentLocation).title("현재위치"))!!
-                marker=Mark
-                mMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
-                model.setLiveData(coorloc)
-
-            }
+        mLocationListener = LocationListener { location ->
+            val lat = location.latitude
+            val lng = location.longitude
+            Log.d("GmapViewFragment", "Lat: $lat, lon: $lng")
+            val currentLocation = LatLng(lat, lng)
+            marker = mMap.addMarker(MarkerOptions().position(currentLocation))
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
+            model.setLiveData(currentLocation)
         }
         model.location.observe(viewLifecycleOwner, Observer {
-            marker!!.remove()
-            marker=mMap.addMarker(MarkerOptions().position(LatLng(it.latitude,it.longitude)).title("이름"))!!
-
+            marker?.remove()
+            marker = mMap.addMarker(MarkerOptions().position(LatLng(it.latitude,it.longitude)))!!
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, 15.0f))
         })
-
-
     }
 
     override fun onDestroyView() {
@@ -103,20 +78,19 @@ class MapFragment : Fragment(),OnMapReadyCallback {
     }
 
     override fun onMapReady(p0: GoogleMap) {
-        mMap = p0!!
+        mMap = p0
+        var mark : LatLng
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mark, 15.0f))
 
-        var mark = LatLng(37.541, 126.986)
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mark, 15.0f))
         mMap.setOnMapClickListener {
-            Log.d(ContentValues.TAG, "onMapClick :"+it.latitude+it.longitude)
-            var coorloc=Coordinate(it.longitude,it.latitude)
-            mark=LatLng(it.latitude,it.longitude)
-            marker!!.remove()
-            marker=mMap.addMarker(MarkerOptions().position(mark).title("이름"))!!
-            model.setLiveData(coorloc)
+            Log.d(ContentValues.TAG, "onMapClick :" + it.latitude + it.longitude)
+            mark = LatLng(it.latitude, it.longitude)
+            marker?.remove()
+            marker = mMap.addMarker(MarkerOptions().position(mark).title("이름"))!!
+            model.setLiveData(mark)
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, 15.0f))
-
         }
+
         if (ActivityCompat.checkSelfPermission(
                 this.requireActivity(),
                 Manifest.permission.ACCESS_FINE_LOCATION

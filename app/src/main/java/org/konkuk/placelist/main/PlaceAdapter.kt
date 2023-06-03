@@ -51,7 +51,7 @@ class PlaceAdapter(private val db: PlacesListDatabase, var items : ArrayList<Pla
 
     fun addPlace(name: String, coordinate: LatLng) {
         CoroutineScope(Dispatchers.IO).launch{
-            db.placesDao().insertAll(Place(0, name, coordinate.latitude, coordinate.longitude))
+            db.placesDao().insertAll(Place(0, name, coordinate.latitude, coordinate.longitude, 100f))
             items = db.placesDao().getAll() as ArrayList<Place>
         }
         CoroutineScope(Dispatchers.Main).launch {

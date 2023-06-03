@@ -9,5 +9,6 @@ data class Place(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "place_id") val id: Int,
     var name: String,
     var latitude: Double,
-    var longitude: Double
+    var longitude: Double,
+    var detectRange: Float
     )

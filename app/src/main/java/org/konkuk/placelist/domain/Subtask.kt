@@ -1,5 +1,3 @@
 package org.konkuk.placelist.domain
 
-class Subtask : Task() {
-
-}
+data class Subtask(val id: Int)

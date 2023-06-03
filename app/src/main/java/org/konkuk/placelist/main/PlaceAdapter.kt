@@ -1,14 +1,18 @@
-package org.konkuk.placelist
+package org.konkuk.placelist.main
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.PlacesRowBinding
 import org.konkuk.placelist.domain.Place
 
-class PlaceAdapter : RecyclerView.Adapter<PlaceAdapter.ViewHolder>(){
-    val items = ArrayList<Place>()
+class PlaceAdapter(private val db: PlacesListDatabase, var items : ArrayList<Place>) : RecyclerView.Adapter<PlaceAdapter.ViewHolder>(){
+
     interface OnItemClickListener{
         fun onItemClick(data: Place, pos: Int)
     }
@@ -21,6 +25,15 @@ class PlaceAdapter : RecyclerView.Adapter<PlaceAdapter.ViewHolder>(){
         }
     }
 
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        CoroutineScope(Dispatchers.IO).launch{
+            items = db.placesDao().getAll() as ArrayList<Place>
+        }
+        CoroutineScope(Dispatchers.Main).launch {
+            notifyDataSetChanged()
+        }
+    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(PlacesRowBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
@@ -37,7 +50,12 @@ class PlaceAdapter : RecyclerView.Adapter<PlaceAdapter.ViewHolder>(){
     }
 
     fun addPlace(name: String, coordinate: LatLng) {
-        items.add(Place(name, coordinate))
-        notifyItemChanged(items.size)
+        CoroutineScope(Dispatchers.IO).launch{
+            db.placesDao().insertAll(Place(0, name, coordinate.latitude, coordinate.longitude))
+            items = db.placesDao().getAll() as ArrayList<Place>
+        }
+        CoroutineScope(Dispatchers.Main).launch {
+            notifyDataSetChanged()
+        }
     }
 }

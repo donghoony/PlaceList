@@ -1,4 +1,4 @@
-package org.konkuk.placelist
+package org.konkuk.placelist.intro
 
 import android.content.Intent
 import android.os.Build
@@ -8,6 +8,7 @@ import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import org.konkuk.placelist.databinding.ActivityIntroBinding
+import org.konkuk.placelist.main.MainActivity
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class IntroActivity : AppCompatActivity() {

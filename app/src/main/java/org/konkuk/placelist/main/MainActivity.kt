@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
             binding.placelist.adapter = placeAdapter
         }
         val simpleCallback = object : ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.RIGHT
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT
         ) {
             override fun onMove(
                 recyclerView: RecyclerView,

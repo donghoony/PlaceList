@@ -1,5 +1,14 @@
 package org.konkuk.placelist.domain
 
-import com.google.android.gms.maps.model.LatLng
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-data class Place(var name: String, var location: LatLng)
+@Entity(tableName = "places")
+data class Place(
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "place_id") val id: Int,
+    var name: String,
+    var latitude: Double,
+    var longitude: Double,
+    var detectRange: Float
+    )

@@ -1,4 +1,4 @@
-package org.konkuk.placelist
+package org.konkuk.placelist.main
 
 import android.Manifest
 import android.content.ContentValues
@@ -21,6 +21,8 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import org.konkuk.placelist.MyViewModel
+import org.konkuk.placelist.R
 import org.konkuk.placelist.databinding.FragmentMapBinding
 
 class MapFragment : Fragment(), OnMapReadyCallback {
@@ -38,7 +40,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         savedInstanceState: Bundle?
     ): View {
         binding= FragmentMapBinding.inflate(layoutInflater,container,false)
-        val mapFragment = childFragmentManager.findFragmentById(org.konkuk.placelist.R.id.map) as SupportMapFragment
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
         return binding!!.root
     }

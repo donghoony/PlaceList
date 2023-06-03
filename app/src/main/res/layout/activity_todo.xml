@@ -14,7 +14,7 @@
         android:layout_marginBottom="20dp"
         android:orientation="horizontal"
         android:layout_marginTop="15dp"
-        tools:context=".PlacesActivity">
+        tools:context=".place.PlacesActivity">
 
         <!-- 뒤로 가기 버튼 -->
         <ImageButton

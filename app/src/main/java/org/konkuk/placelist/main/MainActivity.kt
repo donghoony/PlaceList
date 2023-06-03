@@ -1,4 +1,4 @@
-package org.konkuk.placelist
+package org.konkuk.placelist.main
 
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -14,6 +14,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.konkuk.placelist.place.PlacesActivity
+import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.ActivityMainBinding
 import org.konkuk.placelist.domain.Place
 
@@ -32,16 +37,26 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
     }
 
     private fun initPlaceView() {
+        val db = PlacesListDatabase.getDatabase(this)
         binding.placelist.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        placeAdapter = PlaceAdapter()
-        placeAdapter.itemClickListener = object : PlaceAdapter.OnItemClickListener{
-            override fun onItemClick(data: Place, pos: Int) {
-                Toast.makeText(this@MainActivity,
-                    "${data.name} : ${data.location.latitude}, ${data.location.longitude}",
-                    Toast.LENGTH_SHORT).show()
+
+        CoroutineScope(Dispatchers.IO).launch{
+            val items = db.placesDao().getAll() as ArrayList<Place>
+            placeAdapter = PlaceAdapter(db, items)
+            placeAdapter.itemClickListener = object : PlaceAdapter.OnItemClickListener {
+                override fun onItemClick(data: Place, pos: Int) {
+                    Toast.makeText(this@MainActivity,
+                        "${data.name} : ${data.latitude}, ${data.longitude}",
+                        Toast.LENGTH_SHORT).show()
+
+                    val intent = Intent(this@MainActivity, PlacesActivity::class.java)
+                    intent.putExtra("id", data.id)
+                    intent.putExtra("name", data.name)
+                    startActivity(intent)
+                }
             }
+            binding.placelist.adapter = placeAdapter
         }
-        binding.placelist.adapter = placeAdapter
     }
 
 

@@ -1,4 +1,4 @@
-package org.konkuk.placelist
+package org.konkuk.placelist.main
 
 import android.content.Context
 import android.graphics.Color
@@ -18,6 +18,7 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.gms.maps.model.LatLng
+import org.konkuk.placelist.MyViewModel
 import org.konkuk.placelist.databinding.FragmentAddPlaceBinding
 import java.util.Locale
 import android.os.Bundle as Bundle1

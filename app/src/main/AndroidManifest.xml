@@ -8,7 +8,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
-            android:allowBackup="true"
+            android:allowBackup="false"
+            android:enableOnBackInvokedCallback="true"
             android:dataExtractionRules="@xml/data_extraction_rules"
             android:fullBackupContent="@xml/backup_rules"
             android:icon="@mipmap/ic_launcher"
@@ -18,13 +19,13 @@
             android:theme="@style/Theme.PlaceList"
             tools:targetApi="31">
         <activity
-                android:name=".PlacesActivity"
+                android:name=".place.PlacesActivity"
                 android:exported="false" />
         <activity
                 android:name=".TodoActivity"
                 android:exported="false" />
         <activity
-                android:name=".IntroActivity"
+                android:name=".intro.IntroActivity"
                 android:configChanges="orientation|keyboardHidden|screenSize"
                 android:exported="true"
                 android:theme="@style/Theme.PlaceList.Fullscreen">
@@ -34,7 +35,7 @@
             </intent-filter>
         </activity>
         <activity
-                android:name=".MainActivity"
+                android:name=".main.MainActivity"
                 android:exported="false">
         </activity>
         <meta-data

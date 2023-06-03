@@ -1,4 +1,4 @@
-package org.konkuk.placelist
+package org.konkuk.placelist.main
 
 import com.google.android.gms.maps.model.LatLng
 

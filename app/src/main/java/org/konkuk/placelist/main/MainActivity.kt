@@ -21,12 +21,14 @@ import org.konkuk.placelist.place.PlacesActivity
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.ActivityMainBinding
 import org.konkuk.placelist.domain.Place
+import org.konkuk.placelist.Geofence
+
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class MainActivity : AppCompatActivity(), AddPlaceListener {
     lateinit var binding: ActivityMainBinding
     lateinit var placeAdapter : PlaceAdapter
-
+    lateinit var geofence: Geofence
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -34,6 +36,15 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         initButton()
         initPlaceView()
         getPermissions()
+
+        initGeofence()
+
+
+    }
+
+    //geofence 객체 생성, database 삭제 추가 변경시 이 객체에서 ChangeData() 함수 호출해주면 됨
+    private fun initGeofence(){
+        geofence=Geofence(this@MainActivity)
     }
 
     private fun initPlaceView() {
@@ -122,8 +133,8 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
             )
         }
     }
-
     override fun addPlace(name: String, coordinate: LatLng) {
-        placeAdapter.addPlace(name, coordinate)
+        placeAdapter.addPlace(name, coordinate,geofence)
+
     }
 }

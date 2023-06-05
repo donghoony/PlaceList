@@ -7,6 +7,7 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.konkuk.placelist.Geofence
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.PlacesRowBinding
 import org.konkuk.placelist.domain.Place
@@ -49,10 +50,11 @@ class PlaceAdapter(private val db: PlacesListDatabase, var items : ArrayList<Pla
         }
     }
 
-    fun addPlace(name: String, coordinate: LatLng) {
+    fun addPlace(name: String, coordinate: LatLng,geofence: Geofence) {
         CoroutineScope(Dispatchers.IO).launch{
             db.placesDao().insertAll(Place(0, name, coordinate.latitude, coordinate.longitude, 100f))
             items = db.placesDao().getAll() as ArrayList<Place>
+            geofence.ChangeData(items)
         }
         CoroutineScope(Dispatchers.Main).launch {
             notifyDataSetChanged()

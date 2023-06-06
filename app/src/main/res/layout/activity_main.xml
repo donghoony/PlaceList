@@ -7,32 +7,54 @@
     android:orientation="vertical"
     tools:context=".main.MainActivity">
 
-    <TextView
-        android:layout_marginTop="35dp"
-        android:layout_marginBottom="20dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="내 장소"
-        android:textSize="26sp"
-        android:fontFamily="@font/nanumsquareroundb"/>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/myPlace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="35dp"
+            android:layout_marginBottom="20dp"
+            android:fontFamily="@font/nanumsquareroundb"
+            android:text="내 장소"
+            android:textSize="26sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/setting"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginEnd="15dp"
+            android:background="@android:color/transparent"
+            app:layout_constraintBottom_toBottomOf="@+id/myPlace"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/myPlace"
+            app:srcCompat="@drawable/baseline_settings_24"
+            app:tint="@color/gray3" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/placelist"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/placelist" />
+        android:layout_height="match_parent" />
 
     <ImageButton
         android:id="@+id/btn_plus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxHeight="80dp"
-        android:maxWidth="80dp"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter"
-        android:layout_marginTop="-100dp"
         android:layout_gravity="center_horizontal"
-        app:srcCompat="@drawable/btn_plus"
-        android:background="@android:color/transparent"/>
+        android:layout_marginTop="-100dp"
+        android:adjustViewBounds="true"
+        android:background="@android:color/transparent"
+        android:maxWidth="80dp"
+        android:maxHeight="80dp"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/btn_plus" />
 
 </LinearLayout>

@@ -57,21 +57,13 @@ class AddPlaceDialogFragment : DialogFragment() {
         return binding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        context?.dialogFragmentResize(1f, 0.6f)
-
-        val window = dialog!!.window
-//        window!!.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-        window!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
-    }
     private fun initButtons() {
         with(binding){
             this.closeBtn.setOnClickListener {
                 dismiss()
             }
             this.submitBtn.setOnClickListener {
-                addPlaceListener.addPlace(binding.placename.text.toString(), selectedLocation)
+                addPlaceListener.addPlace(binding.placename.text.toString(), selectedLocation, model.detectRange)
                 dismiss()
             }
         }
@@ -96,6 +88,12 @@ class AddPlaceDialogFragment : DialogFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        context?.dialogFragmentResize(1f, 0.6f)
+        val window = dialog!!.window
+        window!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+    }
     private fun Context.dialogFragmentResize(w: Float, h: Float) {
         val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         if (Build.VERSION.SDK_INT < 30) {

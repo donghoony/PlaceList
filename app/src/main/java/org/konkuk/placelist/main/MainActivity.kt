@@ -17,10 +17,10 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.konkuk.placelist.place.PlacesActivity
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.ActivityMainBinding
 import org.konkuk.placelist.domain.Place
+import org.konkuk.placelist.place.PlacesActivity
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class MainActivity : AppCompatActivity(), AddPlaceListener {
@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         }
     }
 
-    override fun addPlace(name: String, coordinate: LatLng) {
-        placeAdapter.addPlace(name, coordinate)
+    override fun addPlace(name: String, coordinate: LatLng, radius: Float) {
+        placeAdapter.addPlace(name, coordinate, radius)
     }
 }

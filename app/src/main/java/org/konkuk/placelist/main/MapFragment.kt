@@ -53,6 +53,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     override fun onDestroyView() {
         super.onDestroyView()
         mMap.clear()
+        model.detectRange = 100f
         binding = null
     }
 
@@ -76,6 +77,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 200.0 -> radius = 500.0
                 500.0 -> radius = 100.0
             }
+            model.detectRange = radius.toFloat()
             mMap.clear()
             val pos = LatLng(it.position.latitude, it.position.longitude)
             mMap.addCircle(circleOptions.center(pos).radius(radius))

@@ -17,6 +17,7 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.ActivityMainBinding
 import org.konkuk.placelist.domain.Place
@@ -55,7 +56,9 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
                     startActivity(intent)
                 }
             }
-            binding.placelist.adapter = placeAdapter
+            withContext(Dispatchers.Main){
+                binding.placelist.adapter = placeAdapter
+            }
         }
     }
 

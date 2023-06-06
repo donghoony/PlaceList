@@ -25,6 +25,10 @@ class PlaceAdapter(private val db: PlacesListDatabase, var items : ArrayList<Pla
             }
         }
     }
+    fun removeItem(pos: Int) {
+        items.removeAt(pos)
+        notifyItemRemoved(pos)
+    }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)

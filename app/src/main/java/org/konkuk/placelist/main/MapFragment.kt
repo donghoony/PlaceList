@@ -47,22 +47,24 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         binding = FragmentMapBinding.inflate(layoutInflater,container,false)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        radius = model.detectRange.value!!.toDouble()
         return binding!!.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         mMap.clear()
-        model.detectRange = 100f
+        model.setRange(100f)
         binding = null
     }
 
     override fun onMapReady(p0: GoogleMap) {
         mMap = p0
+        radius = model.detectRange.value!!.toDouble()
+        Log.i("Radius", "Map radius $radius")
         val iconBitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_pin_red)
         val resizedIcon = Bitmap.createScaledBitmap(iconBitmap, 60, 72, false)
         val pinIcon: BitmapDescriptor = BitmapDescriptorFactory.fromBitmap(resizedIcon)
-
         val circleOptions = CircleOptions()
             .radius(radius)
             .fillColor(0x22ff5959)
@@ -71,27 +73,14 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val markerOptions = MarkerOptions().icon(pinIcon)
 
         mLocationManager = this.requireActivity().getSystemService(LOCATION_SERVICE) as LocationManager
-        mMap.setOnMarkerClickListener {
-            when(radius){
-                100.0 -> radius = 200.0
-                200.0 -> radius = 500.0
-                500.0 -> radius = 100.0
-            }
-            model.detectRange = radius.toFloat()
-            mMap.clear()
-            val pos = LatLng(it.position.latitude, it.position.longitude)
-            mMap.addCircle(circleOptions.center(pos).radius(radius))
-            mMap.addMarker(markerOptions.position(pos))
-            true
-        }
+
         mLocationListener = LocationListener { location ->
             val lat = location.latitude
             val lng = location.longitude
             Log.d("GmapViewFragment", "Lat: $lat, lon: $lng")
             val currentLocation = LatLng(lat, lng)
             marker = mMap.addMarker(markerOptions.position(currentLocation))
-            mMap.addCircle(circleOptions.center(currentLocation))
-
+            mMap.addCircle(circleOptions.center(currentLocation).radius(radius))
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
             model.setLiveData(currentLocation)
         }
@@ -99,16 +88,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         model.location.observe(viewLifecycleOwner) {
             mMap.clear()
             marker = mMap.addMarker(markerOptions.position(it))
-            mMap.addCircle(circleOptions.center(it))
+            mMap.addCircle(circleOptions.center(it).radius(radius))
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, 15.0f))
         }
-
 
         mMap.setOnMapClickListener {
             Log.d(ContentValues.TAG, "onMapClick :" + it.latitude + it.longitude)
             mMap.clear()
             marker = mMap.addMarker(markerOptions.position(it))
-            mMap.addCircle(circleOptions.center(it))
+            mMap.addCircle(circleOptions.center(it).radius(radius))
             model.setLiveData(it)
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, 15.0f))
         }
@@ -130,5 +118,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             mLocationListener!!
         )
 
+        model.detectRange.observe(viewLifecycleOwner){
+            mMap.clear()
+            radius = it.toDouble()
+            val pos = model.location.value
+            if (pos != null){
+                mMap.addCircle(circleOptions.center(pos).radius(radius))
+                mMap.addMarker(markerOptions.position(pos))
+            }
+        }
     }
+
 }

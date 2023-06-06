@@ -29,6 +29,8 @@ class PlaceAdapter(private val db: PlacesListDatabase, var items : ArrayList<Pla
         super.onAttachedToRecyclerView(recyclerView)
         CoroutineScope(Dispatchers.IO).launch{
             items = db.placesDao().getAll() as ArrayList<Place>
+        }
+        CoroutineScope(Dispatchers.Main).launch {
             notifyItemRangeChanged(0, items.size)
         }
     }
@@ -51,6 +53,8 @@ class PlaceAdapter(private val db: PlacesListDatabase, var items : ArrayList<Pla
         CoroutineScope(Dispatchers.IO).launch{
             db.placesDao().insertAll(Place(0, name, coordinate.latitude, coordinate.longitude, radius))
             items = db.placesDao().getAll() as ArrayList<Place>
+        }
+        CoroutineScope(Dispatchers.Main).launch {
             notifyItemChanged(items.size)
         }
     }

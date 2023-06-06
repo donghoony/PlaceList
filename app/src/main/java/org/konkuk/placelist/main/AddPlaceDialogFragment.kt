@@ -111,7 +111,7 @@ class AddPlaceDialogFragment : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        context?.dialogFragmentResize(1f, 0.6f)
+        context?.dialogFragmentResize(1f, 0.7f)
         val window = dialog!!.window
         window!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
     }

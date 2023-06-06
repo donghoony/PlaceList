@@ -7,6 +7,7 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.PlacesRowBinding
 import org.konkuk.placelist.domain.Place
@@ -29,9 +30,9 @@ class PlaceAdapter(private val db: PlacesListDatabase, var items : ArrayList<Pla
         super.onAttachedToRecyclerView(recyclerView)
         CoroutineScope(Dispatchers.IO).launch{
             items = db.placesDao().getAll() as ArrayList<Place>
-        }
-        CoroutineScope(Dispatchers.Main).launch {
-            notifyItemRangeChanged(0, items.size)
+            withContext(Dispatchers.Main){
+                notifyItemRangeChanged(0, items.size)
+            }
         }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -53,9 +54,9 @@ class PlaceAdapter(private val db: PlacesListDatabase, var items : ArrayList<Pla
         CoroutineScope(Dispatchers.IO).launch{
             db.placesDao().insertAll(Place(0, name, coordinate.latitude, coordinate.longitude, radius))
             items = db.placesDao().getAll() as ArrayList<Place>
-        }
-        CoroutineScope(Dispatchers.Main).launch {
-            notifyItemChanged(items.size)
+            withContext(Dispatchers.Main){
+                notifyItemInserted(items.size)
+            }
         }
     }
 }

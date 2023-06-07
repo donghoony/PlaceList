@@ -1,6 +1,7 @@
 package org.konkuk.placelist.main
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -12,6 +13,8 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.preference.MultiSelectListPreference
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,11 +28,12 @@ import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.ActivityMainBinding
 import org.konkuk.placelist.domain.Place
 import org.konkuk.placelist.place.PlacesActivity
+import org.konkuk.placelist.setting.SettingsActivity
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class MainActivity : AppCompatActivity(), AddPlaceListener {
     lateinit var binding: ActivityMainBinding
-    lateinit var placeAdapter : PlaceAdapter
+    lateinit var placeAdapter: PlaceAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,20 +42,40 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         initButton()
         initPlaceView()
         getPermissions()
+        initSettings()
+    }
+
+    private fun initSettings() {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+
+        if (prefs.getString("notification_hour", "") == "" ||
+            prefs.getString("notification_minute", "") == ""
+        ) {
+            prefs.edit()
+                .putString("notification_hour", "6")
+                .putString("notification_minute", "0")
+                .apply()
+        }
+        val hour = prefs.getString("notification_hour", "6")
+        val minute = prefs.getString("notification_minute", "0")
+        Toast.makeText(this, hour.toString() + ":" + minute.toString(), Toast.LENGTH_SHORT).show()
     }
 
     private fun initPlaceView() {
         val db = PlacesListDatabase.getDatabase(this)
-        binding.placelist.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        binding.placelist.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
-        CoroutineScope(Dispatchers.IO).launch{
+        CoroutineScope(Dispatchers.IO).launch {
             val items = db.placesDao().getAll() as ArrayList<Place>
             placeAdapter = PlaceAdapter(db, items)
             placeAdapter.itemClickListener = object : PlaceAdapter.OnItemClickListener {
                 override fun onItemClick(data: Place, pos: Int) {
-                    Toast.makeText(this@MainActivity,
+                    Toast.makeText(
+                        this@MainActivity,
                         "${data.name} : ${data.latitude}, ${data.longitude}",
-                        Toast.LENGTH_SHORT).show()
+                        Toast.LENGTH_SHORT
+                    ).show()
 
                     val intent = Intent(this@MainActivity, PlacesActivity::class.java)
                     intent.putExtra("id", data.id)
@@ -99,7 +123,10 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         )
 
         fun checkPermission(permission: String) =
-            ActivityCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+            ActivityCompat.checkSelfPermission(
+                this,
+                permission
+            ) == PackageManager.PERMISSION_GRANTED
 
         fun openPermissionSettings() = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -107,23 +134,22 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         }.run(::startActivity)
 
         val multipleLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()){
-                map->
-                if (map.all{permission -> permission.value}){
-                    if (!checkPermission(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION))
-                        backgroundDialog.show()
-                }
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { map ->
+            if (map.all { permission -> permission.value }) {
+                if (!checkPermission(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION))
+                    backgroundDialog.show()
             }
+        }
 
         // 추후에 Dialog 커스텀 필요할 수 있음 -> Fragment로 변경 등
         dialog = AlertDialog.Builder(this)
             .setTitle("권한 요청")
             .setMessage("어플리케이션을 사용하기 위해서는 권한이 필요합니다.\n권한 요청을 승인해 주세요.")
-            .setPositiveButton("확인"){
-                _, _ ->
+            .setPositiveButton("확인") { _, _ ->
                 multipleLauncher.launch(permissions)
             }
-            .setNegativeButton("종료"){ _, _ ->
+            .setNegativeButton("종료") { _, _ ->
                 finish()
             }
             .create()
@@ -131,15 +157,15 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         backgroundDialog = AlertDialog.Builder(this)
             .setTitle("백그라운드 권한 요청")
             .setMessage("권한 - 위치 탭에서 '항상 허용'에 체크해주세요")
-            .setPositiveButton("확인"){ _, _ ->
+            .setPositiveButton("확인") { _, _ ->
                 openPermissionSettings()
             }
-            .setNegativeButton("종료"){ _, _ ->
+            .setNegativeButton("종료") { _, _ ->
                 finish()
             }
             .create()
 
-        if (!permissions.all{permission -> checkPermission(permission)}) dialog.show()
+        if (!permissions.all { permission -> checkPermission(permission) }) dialog.show()
         else if (!checkPermission(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)) backgroundDialog.show()
     }
 
@@ -148,6 +174,10 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
             AddPlaceDialogFragment().show(
                 supportFragmentManager, "AddPlace"
             )
+        }
+        binding.setting.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
         }
     }
 

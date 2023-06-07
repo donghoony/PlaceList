@@ -40,8 +40,13 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         initPlaceView()
         getPermissions()
         initSettings()
+
     }
 
+    override fun onStart() {
+        super.onStart()
+        if(this::placeAdapter.isInitialized) placeAdapter.refresh()
+    }
     private fun initSettings() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
 
@@ -75,8 +80,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
                     ).show()
 
                     val intent = Intent(this@MainActivity, PlacesActivity::class.java)
-                    intent.putExtra("id", data.id)
-                    intent.putExtra("name", data.name)
+                    intent.putExtra("place", data)
                     startActivity(intent)
                 }
             }
@@ -178,7 +182,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         }
     }
 
-    override fun addPlace(name: String, coordinate: LatLng, radius: Float) {
-        placeAdapter.addPlace(name, coordinate, radius)
+    override fun addPlace(id: Int, name: String, coordinate: LatLng, radius: Float) {
+        placeAdapter.addPlace(0, name, coordinate, radius)
     }
 }

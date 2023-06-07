@@ -3,6 +3,7 @@ package org.konkuk.placelist.domain
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 
 @Entity(tableName = "places")
 data class Place(
@@ -11,4 +12,4 @@ data class Place(
     var latitude: Double,
     var longitude: Double,
     var detectRange: Float
-    )
+    ) : Serializable

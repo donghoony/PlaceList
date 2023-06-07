@@ -6,7 +6,6 @@ import android.content.Context.LOCATION_SERVICE
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
@@ -29,13 +28,13 @@ import com.google.android.gms.maps.model.MarkerOptions
 import org.konkuk.placelist.MyViewModel
 import org.konkuk.placelist.R
 import org.konkuk.placelist.databinding.FragmentMapBinding
+import org.konkuk.placelist.domain.Place
 
 class MapFragment : Fragment(), OnMapReadyCallback {
     lateinit var mMap: GoogleMap
     private val model : MyViewModel by activityViewModels()
     var binding : FragmentMapBinding? = null
     var mLocationManager : LocationManager? = null
-    var mLocationListener : LocationListener? = null
     var marker : Marker? = null
     var radius = 100.0
 
@@ -73,16 +72,37 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         val markerOptions = MarkerOptions().icon(pinIcon)
 
         mLocationManager = this.requireActivity().getSystemService(LOCATION_SERVICE) as LocationManager
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
 
-        mLocationListener = LocationListener { location ->
-            val lat = location.latitude
-            val lng = location.longitude
-            Log.d("GmapViewFragment", "Lat: $lat, lon: $lng")
-            val currentLocation = LatLng(lat, lng)
+        Log.i("Mapfrag", "TAG : ${requireParentFragment().tag}")
+        if (requireParentFragment().tag != "EditPlace")
+            mLocationManager!!.getCurrentLocation(LocationManager.GPS_PROVIDER, null, requireContext().mainExecutor){ location->
+                val lat = location.latitude
+                val lng = location.longitude
+                Log.d("GmapViewFragment", "Lat: $lat, lon: $lng")
+                val currentLocation = LatLng(lat, lng)
+                marker = mMap.addMarker(markerOptions.position(currentLocation))
+                mMap.addCircle(circleOptions.center(currentLocation).radius(radius))
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
+                model.setLiveData(currentLocation)
+            }
+        else{
+            val place = requireParentFragment().requireArguments().getSerializable("place", Place::class.java)!!
+            val currentLocation = LatLng(place.latitude, place.longitude)
             marker = mMap.addMarker(markerOptions.position(currentLocation))
             mMap.addCircle(circleOptions.center(currentLocation).radius(radius))
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
             model.setLiveData(currentLocation)
+            model.setRange(place.detectRange)
         }
 
         model.location.observe(viewLifecycleOwner) {
@@ -111,12 +131,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         ) {
             return
         }
-        mLocationManager!!.requestLocationUpdates(
-            LocationManager.GPS_PROVIDER,
-            3000L,
-            30f,
-            mLocationListener!!
-        )
 
         model.detectRange.observe(viewLifecycleOwner){
             mMap.clear()

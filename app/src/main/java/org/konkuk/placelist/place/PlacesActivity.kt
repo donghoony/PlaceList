@@ -6,24 +6,28 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.ActivityPlacesBinding
+import org.konkuk.placelist.domain.Place
 import org.konkuk.placelist.domain.Todo
+import org.konkuk.placelist.main.AddPlaceDialogFragment
+import org.konkuk.placelist.main.AddPlaceListener
 
-class PlacesActivity : AppCompatActivity(), AddTodoListener {
+class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
     lateinit var binding: ActivityPlacesBinding
-    var placeId = 0
+    lateinit var place : Place
     lateinit var todoAdapter: TodoAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPlacesBinding.inflate(layoutInflater)
-        val name = intent.getStringExtra("name")
-        placeId = intent.getIntExtra("id", 0)
-        binding.name.text = name
+
+        place = intent.getSerializableExtra("place", Place::class.java)!!
+        binding.name.text = place.name
         setContentView(binding.root)
         init()
         initTodo()
@@ -33,12 +37,12 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener {
         binding.todolist.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         CoroutineScope(Dispatchers.IO).launch{
-            val items = db.TodoDao().findTodoByPlaceId(placeId) as ArrayList<Todo>
-            todoAdapter = TodoAdapter(db, items, placeId)
+            val items = db.TodoDao().findTodoByPlaceId(place.id) as ArrayList<Todo>
+            todoAdapter = TodoAdapter(db, items, place.id)
             todoAdapter.itemClickListener = object : TodoAdapter.OnItemClickListener {
                 override fun onItemClick(data: Todo, pos: Int) {
                     Toast.makeText(this@PlacesActivity,
-                        "${data.name}",
+                        data.name,
                         Toast.LENGTH_SHORT).show()
 
                 }
@@ -73,8 +77,11 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener {
         binding.btnPlus.setOnClickListener {
             AddTodoDialogFragment().show(supportFragmentManager, "AddTodo")
         }
-
-
+        binding.editBtn.setOnClickListener {
+            AddPlaceDialogFragment.toInstance(place).show(
+                supportFragmentManager, "EditPlace"
+            )
+        }
     }
 
     override fun update(todo: Todo) {
@@ -82,6 +89,15 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener {
     }
 
     override fun getTodosPlaceId(): Int {
-        return placeId
+        return place.id
+    }
+
+    override fun addPlace(id: Int, name: String, coordinate: LatLng, radius: Float) {
+        // editPlace
+        val db = PlacesListDatabase.getDatabase(this)
+        CoroutineScope(Dispatchers.IO).launch {
+            db.placesDao().update(Place(id, name, coordinate.latitude, coordinate.longitude, radius))
+        }
+        binding.name.text = name
     }
 }

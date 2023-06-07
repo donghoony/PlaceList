@@ -27,6 +27,7 @@ import org.konkuk.placelist.place.PlacesActivity
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.ActivityMainBinding
 import org.konkuk.placelist.domain.Place
+import org.konkuk.placelist.place.PlacesActivity
 import org.konkuk.placelist.setting.SettingsActivity
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -82,7 +83,9 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
                     startActivity(intent)
                 }
             }
-            binding.placelist.adapter = placeAdapter
+            withContext(Dispatchers.Main){
+                binding.placelist.adapter = placeAdapter
+            }
         }
         val simpleCallback = object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT
@@ -178,7 +181,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         }
     }
 
-    override fun addPlace(name: String, coordinate: LatLng) {
-        placeAdapter.addPlace(name, coordinate)
+    override fun addPlace(name: String, coordinate: LatLng, radius: Float) {
+        placeAdapter.addPlace(name, coordinate, radius)
     }
 }

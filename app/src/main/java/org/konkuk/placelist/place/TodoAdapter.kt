@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.PlacesRowBinding
 import org.konkuk.placelist.domain.Todo
@@ -33,9 +34,9 @@ class TodoAdapter(private val db: PlacesListDatabase, var items : ArrayList<Todo
         super.onAttachedToRecyclerView(recyclerView)
         CoroutineScope(Dispatchers.IO).launch{
             items = db.TodoDao().findTodoByPlaceId(placeId) as ArrayList<Todo>
-        }
-        CoroutineScope(Dispatchers.Main).launch {
-            notifyDataSetChanged()
+            withContext(Dispatchers.Main){
+                notifyItemRangeChanged(0, items.size)
+            }
         }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -60,9 +61,9 @@ class TodoAdapter(private val db: PlacesListDatabase, var items : ArrayList<Todo
             for(i in items){
                 Log.i("ITEM", i.name)
             }
-        }
-        CoroutineScope(Dispatchers.Main).launch {
-            notifyDataSetChanged()
+            withContext(Dispatchers.Main){
+                notifyItemInserted(items.size)
+            }
         }
     }
 }

@@ -14,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.SeekBar
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
@@ -34,7 +35,8 @@ class AddPlaceDialogFragment : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle1?) {
         super.onCreate(savedInstanceState)
-        try{ addPlaceListener = context as AddPlaceListener
+        try{
+            addPlaceListener = context as AddPlaceListener
         } catch (e: ClassCastException) { Log.e("E", "Cast Failed")}
         isCancelable = false
     }
@@ -57,24 +59,35 @@ class AddPlaceDialogFragment : DialogFragment() {
         return binding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        context?.dialogFragmentResize(1f, 0.6f)
-
-        val window = dialog!!.window
-//        window!!.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-        window!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
-    }
     private fun initButtons() {
         with(binding){
+            this.radiusSeekbar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
+                override fun onProgressChanged(
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    val range = when(progress){
+                        0 -> 100.0f
+                        1 -> 200.0f
+                        2 -> 500.0f
+                        else -> 100.0f
+                    }
+                    model.setRange(range)
+                    Log.i("Radius", "Radius changed into $range")
+                }
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            })
             this.closeBtn.setOnClickListener {
                 dismiss()
             }
             this.submitBtn.setOnClickListener {
-                addPlaceListener.addPlace(binding.placename.text.toString(), selectedLocation)
+                addPlaceListener.addPlace(binding.placename.text.toString(), selectedLocation, model.detectRange.value!!)
                 dismiss()
             }
         }
+
     }
     private fun initGeocoder() {
         val geocoder = Geocoder(requireActivity(), Locale.KOREA)
@@ -96,6 +109,12 @@ class AddPlaceDialogFragment : DialogFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        context?.dialogFragmentResize(1f, 0.7f)
+        val window = dialog!!.window
+        window!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+    }
     private fun Context.dialogFragmentResize(w: Float, h: Float) {
         val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         if (Build.VERSION.SDK_INT < 30) {

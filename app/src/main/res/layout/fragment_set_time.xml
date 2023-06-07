@@ -16,6 +16,7 @@
 
         <!-- 닫기 버튼 -->
         <ImageButton
+            android:id="@+id/closeBtn"
             android:layout_width="0dp"
             android:layout_height="37dp"
             android:layout_weight="1"
@@ -38,6 +39,7 @@
 
         <!-- 체크 버튼 -->
         <ImageButton
+            android:id="@+id/submitBtn"
             android:layout_width="0dp"
             android:layout_height="37dp"
             android:layout_weight="1"
@@ -51,6 +53,7 @@
     <!-- 하단 -->
     <!-- 타임피커 -->
     <TimePicker
+        android:id="@+id/timePicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"

@@ -95,9 +95,11 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
     override fun addPlace(id: Int, name: String, coordinate: LatLng, radius: Float) {
         // editPlace
         val db = PlacesListDatabase.getDatabase(this)
+        val updatedPlace = Place(id, name, coordinate.latitude, coordinate.longitude, radius)
         CoroutineScope(Dispatchers.IO).launch {
-            db.placesDao().update(Place(id, name, coordinate.latitude, coordinate.longitude, radius))
+            db.placesDao().update(updatedPlace)
         }
+        this@PlacesActivity.place = updatedPlace
         binding.name.text = name
     }
 }

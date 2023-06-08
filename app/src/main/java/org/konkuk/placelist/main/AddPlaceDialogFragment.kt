@@ -41,8 +41,6 @@ class AddPlaceDialogFragment : DialogFragment() {
         try{
             addPlaceListener = context as AddPlaceListener
         } catch (e: ClassCastException) { Log.e("E", "Cast Failed")}
-        isCancelable = false
-
     }
 
     override fun onCreateView(

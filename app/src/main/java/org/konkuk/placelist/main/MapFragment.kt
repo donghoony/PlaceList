@@ -97,7 +97,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             }
         else{
             val place = requireParentFragment().requireArguments().getSerializable("place", Place::class.java)!!
-            val currentLocation = LatLng(place.latitude, place.longitude)
+            val currentLocation = LatLng(place.latitude.toDouble(), place.longitude.toDouble())
             marker = mMap.addMarker(markerOptions.position(currentLocation))
             mMap.addCircle(circleOptions.center(currentLocation).radius(radius))
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))

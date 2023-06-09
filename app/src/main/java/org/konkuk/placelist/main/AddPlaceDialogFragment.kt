@@ -32,7 +32,6 @@ class AddPlaceDialogFragment : DialogFragment() {
     lateinit var addPlaceListener: AddPlaceListener
     val model : MyViewModel by activityViewModels()
     var text = ""
-    var selectedLocation = LatLng(0.0, 0.0)
 
     var place : Place? = null
 
@@ -103,7 +102,12 @@ class AddPlaceDialogFragment : DialogFragment() {
             this.submitBtn.setOnClickListener {
                 var placeId = 0
                 if (place != null) placeId = place!!.id
-                addPlaceListener.addPlace(placeId, binding.placename.text.toString(), selectedLocation, model.detectRange.value!!)
+                val pos = model.location.value!!
+                addPlaceListener.addPlace(placeId,
+                    binding.placename.text.toString(),
+                    pos.latitude.toString(),
+                    pos.longitude.toString(),
+                    model.detectRange.value!!)
                 dismiss()
             }
         }
@@ -111,12 +115,6 @@ class AddPlaceDialogFragment : DialogFragment() {
     }
     private fun initGeocoder() {
         val geocoder = Geocoder(requireActivity(), Locale.KOREA)
-
-        model.location.observe(viewLifecycleOwner) { it: LatLng ->
-            geocoder.getFromLocation(it.latitude, it.longitude, 1) { location ->
-                selectedLocation = LatLng(location[0].latitude, location[0].longitude)
-            }
-        }
 
         binding.location.setOnKeyListener { v, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KEYCODE_ENTER) {

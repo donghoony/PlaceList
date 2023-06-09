@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -92,10 +91,10 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
         return place.id
     }
 
-    override fun addPlace(id: Int, name: String, coordinate: LatLng, radius: Float) {
+    override fun addPlace(id: Int, name: String, latitude: String, longitude: String, radius: Float) {
         // editPlace
         val db = PlacesListDatabase.getDatabase(this)
-        val updatedPlace = Place(id, name, coordinate.latitude, coordinate.longitude, radius)
+        val updatedPlace = Place(id, name, latitude, longitude, radius)
         CoroutineScope(Dispatchers.IO).launch {
             db.placesDao().update(updatedPlace)
         }

@@ -47,7 +47,7 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener {
     private fun init(){
         binding.backBtn.setOnClickListener { finish() }
         binding.btnPlus.setOnClickListener {
-//            AddTodoDialogFragment().show(supportFragmentManager, "AddTodo")
+            AddTodoDialogFragment().show(supportFragmentManager, "AddTodo")
         }
 
 

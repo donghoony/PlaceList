@@ -21,6 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.konkuk.placelist.domain.Place
+import org.konkuk.placelist.domain.enums.PlaceSituation
 import org.konkuk.placelist.main.MainActivity
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
@@ -68,13 +69,23 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                        if(number!=-1){
                            //Todo정보 items로 가져오기 이 정보 가공해서 showNotification으로 알림 발송
                             val items = db.TodoDao().findTodoByPlaceId(number)
-
+                            var Msg:String=""
+                           for(i in items){
+                               if(i.situation==PlaceSituation.BOTH){
+                                   Msg+=i.name+" "
+                               }
+                               else if(i.situation==PlaceSituation.ENTER&&geofenceTransition==Geofence.GEOFENCE_TRANSITION_ENTER ){
+                                   Msg+=i.name+" "
+                               }else if(i.situation==PlaceSituation.ESCAPE&&geofenceTransition==Geofence.GEOFENCE_TRANSITION_EXIT){
+                                   Msg+=i.name+" "
+                               }
+                           }
 
                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                createNotificationChannel(context!!)
                            }
                            //보내는 메세지 it.requestid== 장소이름 , transitionMsg enter or exit msg는 items가공해서 보낼 메세지 작성
-                           showNotification(context!!,it.requestId+transitionMsg,"hereMsg")
+                           showNotification(context!!,it.requestId+transitionMsg,Msg)
 
 
                        }

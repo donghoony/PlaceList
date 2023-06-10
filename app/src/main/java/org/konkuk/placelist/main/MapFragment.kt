@@ -2,11 +2,9 @@ package org.konkuk.placelist.main
 
 import android.Manifest
 import android.content.ContentValues
-import android.content.Context.LOCATION_SERVICE
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,6 +13,9 @@ import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -25,6 +26,7 @@ import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.tasks.CancellationTokenSource
 import org.konkuk.placelist.MyViewModel
 import org.konkuk.placelist.R
 import org.konkuk.placelist.databinding.FragmentMapBinding
@@ -34,9 +36,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     lateinit var mMap: GoogleMap
     private val model : MyViewModel by activityViewModels()
     var binding : FragmentMapBinding? = null
-    var mLocationManager : LocationManager? = null
     var marker : Marker? = null
     var radius = 100.0
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private var cancellationTokenSource: CancellationTokenSource? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,7 +74,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             .strokeWidth(5f)
         val markerOptions = MarkerOptions().icon(pinIcon)
 
-        mLocationManager = this.requireActivity().getSystemService(LOCATION_SERVICE) as LocationManager
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.requireActivity())
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -83,18 +86,20 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             return
         }
 
+        cancellationTokenSource = CancellationTokenSource()
         Log.i("Mapfrag", "TAG : ${requireParentFragment().tag}")
         if (requireParentFragment().tag != "EditPlace")
-            mLocationManager!!.getCurrentLocation(LocationManager.GPS_PROVIDER, null, requireContext().mainExecutor){ location->
-                val lat = location.latitude
-                val lng = location.longitude
-                Log.d("GmapViewFragment", "Lat: $lat, lon: $lng")
-                val currentLocation = LatLng(lat, lng)
-                marker = mMap.addMarker(markerOptions.position(currentLocation))
-                mMap.addCircle(circleOptions.center(currentLocation).radius(radius))
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
-                model.setLiveData(currentLocation)
-            }
+            fusedLocationProviderClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, cancellationTokenSource!!.token)
+                .addOnSuccessListener { location ->
+                    val lat = location.latitude
+                    val lng = location.longitude
+                    Log.d("GmapViewFragment", "Lat: $lat, lon: $lng")
+                    val currentLocation = LatLng(lat, lng)
+                    marker = mMap.addMarker(markerOptions.position(currentLocation))
+                    mMap.addCircle(circleOptions.center(currentLocation).radius(radius))
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
+                    model.setLiveData(currentLocation)
+                }
         else{
             val place = requireParentFragment().requireArguments().getSerializable("place", Place::class.java)!!
             val currentLocation = LatLng(place.latitude.toDouble(), place.longitude.toDouble())

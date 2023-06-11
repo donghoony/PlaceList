@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
     }
     override fun onStart() {
         super.onStart()
-        if(this::placeAdapter.isInitialized) placeAdapter.refresh()
+        if(this::placeAdapter.isInitialized) placeAdapter.refresh(geofence)
     }
     private fun initSettings() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)

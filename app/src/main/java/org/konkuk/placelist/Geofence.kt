@@ -35,7 +35,7 @@ class Geofence(private val context: Context) {
             geofenceList.add(
                 getGeofence(
                     now.name,
-                    LatLng(now.latitude, now.longitude),
+                    LatLng(now.latitude.toDouble(), now.longitude.toDouble()),
                     now.detectRange
                 )
             )

@@ -65,9 +65,10 @@ class PlaceAdapter(private val db: PlacesListDatabase, var items : ArrayList<Pla
         }
     }
 
-    fun refresh() {
+    fun refresh(geofence: Geofence) {
         CoroutineScope(Dispatchers.IO).launch{
             items = db.placesDao().getAll() as ArrayList<Place>
+            geofence.ChangeData(items)
             withContext(Dispatchers.Main){
                 notifyItemRangeChanged(0, items.size)
             }

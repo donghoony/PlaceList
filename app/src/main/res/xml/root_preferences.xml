@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="알림 설정">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="weather"
+            android:summary="날씨 알림을 받으려면 체크하세요"
+            android:title="날씨 알림" />
+        <Preference
+            android:dependency="weather"
+            android:key="weather_notification"
+            android:selectable="true"
+            android:summary="날씨 알림을 받을 시간을 설정해 주세요"
+            android:title="날씨 알림 시간 설정" />
+
+    </PreferenceCategory>
+</PreferenceScreen>

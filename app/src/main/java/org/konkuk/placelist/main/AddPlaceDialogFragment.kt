@@ -14,12 +14,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.SeekBar
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.gms.maps.model.LatLng
 import org.konkuk.placelist.MyViewModel
 import org.konkuk.placelist.databinding.FragmentAddPlaceBinding
+import org.konkuk.placelist.domain.Place
 import java.util.Locale
 import android.os.Bundle as Bundle1
 
@@ -30,13 +32,14 @@ class AddPlaceDialogFragment : DialogFragment() {
     lateinit var addPlaceListener: AddPlaceListener
     val model : MyViewModel by activityViewModels()
     var text = ""
-    var selectedLocation = LatLng(0.0, 0.0)
+
+    var place : Place? = null
 
     override fun onCreate(savedInstanceState: Bundle1?) {
         super.onCreate(savedInstanceState)
-        try{ addPlaceListener = context as AddPlaceListener
+        try{
+            addPlaceListener = context as AddPlaceListener
         } catch (e: ClassCastException) { Log.e("E", "Cast Failed")}
-        isCancelable = false
     }
 
     override fun onCreateView(
@@ -54,36 +57,64 @@ class AddPlaceDialogFragment : DialogFragment() {
         }
         initButtons()
         initGeocoder()
+
+        if (tag == "EditPlace"){
+            binding.titleText.text = "내 장소 수정"
+            binding.mapFragment.tag = "EditPlace"
+        }
+        if (arguments != null){
+            place = arguments?.getSerializable("place", Place::class.java)!!
+            binding.placename.setText(place?.name.toString())
+            binding.radiusSeekbar.progress = when(place?.detectRange){
+                100f -> 0
+                200f -> 1
+                500f -> 2
+                else -> 0
+            }
+        }
+
         return binding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        context?.dialogFragmentResize(1f, 0.6f)
-
-        val window = dialog!!.window
-//        window!!.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-        window!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
-    }
     private fun initButtons() {
         with(binding){
+            this.radiusSeekbar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
+                override fun onProgressChanged(
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    val range = when(progress){
+                        0 -> 100.0f
+                        1 -> 200.0f
+                        2 -> 500.0f
+                        else -> 100.0f
+                    }
+                    model.setRange(range)
+                    Log.i("Radius", "Radius changed into $range")
+                }
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            })
             this.closeBtn.setOnClickListener {
                 dismiss()
             }
             this.submitBtn.setOnClickListener {
-                addPlaceListener.addPlace(binding.placename.text.toString(), selectedLocation)
+                var placeId = 0
+                if (place != null) placeId = place!!.id
+                val pos = model.location.value!!
+                addPlaceListener.addPlace(placeId,
+                    binding.placename.text.toString(),
+                    pos.latitude.toString(),
+                    pos.longitude.toString(),
+                    model.detectRange.value!!)
                 dismiss()
             }
         }
+
     }
     private fun initGeocoder() {
         val geocoder = Geocoder(requireActivity(), Locale.KOREA)
-
-        model.location.observe(viewLifecycleOwner) { it: LatLng ->
-            geocoder.getFromLocation(it.latitude, it.longitude, 1) { location ->
-                selectedLocation = LatLng(location[0].latitude, location[0].longitude)
-            }
-        }
 
         binding.location.setOnKeyListener { v, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KEYCODE_ENTER) {
@@ -96,6 +127,12 @@ class AddPlaceDialogFragment : DialogFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        context?.dialogFragmentResize(1f, 0.7f)
+        val window = dialog!!.window
+        window!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+    }
     private fun Context.dialogFragmentResize(w: Float, h: Float) {
         val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         if (Build.VERSION.SDK_INT < 30) {
@@ -112,6 +149,16 @@ class AddPlaceDialogFragment : DialogFragment() {
             val x = (rect.width() * w).toInt()
             val y = (rect.height() * h).toInt()
             window?.setLayout(x, y)
+        }
+    }
+
+    companion object{
+        fun toInstance(place: Place) : AddPlaceDialogFragment{
+            val obj = AddPlaceDialogFragment()
+            val args = Bundle1()
+            args.putSerializable("place", place)
+            obj.arguments = args
+            return obj
         }
     }
 }

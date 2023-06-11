@@ -7,32 +7,61 @@
     android:orientation="vertical"
     tools:context=".main.MainActivity">
 
-    <TextView
-        android:layout_marginTop="35dp"
-        android:layout_marginBottom="20dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="내 장소"
-        android:textSize="26sp"
-        android:fontFamily="@font/nanumsquareroundb"/>
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:orientation="horizontal"
+            android:layout_marginTop="15dp">
+
+        <ImageButton
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_marginEnd="15dp"
+                android:background="@android:color/transparent"
+                />
+
+        <TextView
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="5"
+                android:fontFamily="@font/nanumsquareroundb"
+                android:gravity="center"
+                android:text="내 장소"
+                android:textAlignment="center"
+                android:textSize="26sp" />
+
+        <ImageButton
+            android:id="@+id/setting"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:background="@android:color/transparent"
+            android:maxWidth="60dp"
+            android:maxHeight="60dp"
+            android:layout_weight="1"
+            app:tint="@color/gray3"
+            app:srcCompat="@drawable/baseline_settings_24"/>
+
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/placelist"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/placelist" />
+        android:layout_height="match_parent" />
 
     <ImageButton
         android:id="@+id/btn_plus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxHeight="80dp"
-        android:maxWidth="80dp"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter"
-        android:layout_marginTop="-100dp"
         android:layout_gravity="center_horizontal"
-        app:srcCompat="@drawable/btn_plus"
-        android:background="@android:color/transparent"/>
+        android:layout_marginTop="-100dp"
+        android:adjustViewBounds="true"
+        android:background="@android:color/transparent"
+        android:maxWidth="80dp"
+        android:maxHeight="80dp"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/btn_plus" />
 
 </LinearLayout>

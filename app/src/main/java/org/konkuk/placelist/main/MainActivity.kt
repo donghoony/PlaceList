@@ -12,22 +12,25 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.gms.maps.model.LatLng
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.konkuk.placelist.place.PlacesActivity
+import kotlinx.coroutines.withContext
+import org.konkuk.placelist.Geofence
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.ActivityMainBinding
 import org.konkuk.placelist.domain.Place
-import org.konkuk.placelist.Geofence
-
+import org.konkuk.placelist.place.PlacesActivity
+import org.konkuk.placelist.setting.SettingsActivity
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class MainActivity : AppCompatActivity(), AddPlaceListener {
     lateinit var binding: ActivityMainBinding
-    lateinit var placeAdapter : PlaceAdapter
+    lateinit var placeAdapter: PlaceAdapter
     lateinit var geofence: Geofence
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,38 +39,80 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         initButton()
         initPlaceView()
         getPermissions()
-
+        initSettings()
         initGeofence()
-
-
     }
-
     //geofence 객체 생성, database 삭제 추가 변경시 이 객체에서 ChangeData() 함수 호출해주면 됨
     private fun initGeofence(){
-        geofence=Geofence(this@MainActivity)
+        geofence= Geofence(this@MainActivity)
+    }
+    override fun onStart() {
+        super.onStart()
+        if(this::placeAdapter.isInitialized) placeAdapter.refresh()
+    }
+    private fun initSettings() {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+
+        if (prefs.getString("notification_hour", "") == "" ||
+            prefs.getString("notification_minute", "") == ""
+        ) {
+            prefs.edit()
+                .putString("notification_hour", "6")
+                .putString("notification_minute", "0")
+                .apply()
+        }
+        val hour = prefs.getString("notification_hour", "6")
+        val minute = prefs.getString("notification_minute", "0")
+        Toast.makeText(this, hour.toString() + ":" + minute.toString(), Toast.LENGTH_SHORT).show()
     }
 
     private fun initPlaceView() {
         val db = PlacesListDatabase.getDatabase(this)
-        binding.placelist.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        binding.placelist.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
-        CoroutineScope(Dispatchers.IO).launch{
+        CoroutineScope(Dispatchers.IO).launch {
             val items = db.placesDao().getAll() as ArrayList<Place>
             placeAdapter = PlaceAdapter(db, items)
             placeAdapter.itemClickListener = object : PlaceAdapter.OnItemClickListener {
                 override fun onItemClick(data: Place, pos: Int) {
-                    Toast.makeText(this@MainActivity,
+                    Toast.makeText(
+                        this@MainActivity,
                         "${data.name} : ${data.latitude}, ${data.longitude}",
-                        Toast.LENGTH_SHORT).show()
+                        Toast.LENGTH_SHORT
+                    ).show()
 
                     val intent = Intent(this@MainActivity, PlacesActivity::class.java)
-                    intent.putExtra("id", data.id)
-                    intent.putExtra("name", data.name)
+                    intent.putExtra("place", data)
                     startActivity(intent)
                 }
             }
-            binding.placelist.adapter = placeAdapter
+            withContext(Dispatchers.Main){
+                binding.placelist.adapter = placeAdapter
+            }
         }
+        val simpleCallback = object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                TODO("Not yet implemented")
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                CoroutineScope(Dispatchers.IO).launch{
+                    db.placesDao().delete(placeAdapter.items[viewHolder.adapterPosition])
+                    withContext(Dispatchers.Main) {
+                        placeAdapter.removeItem(viewHolder.adapterPosition)
+                    }
+                }
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(simpleCallback)
+        itemTouchHelper.attachToRecyclerView(binding.placelist)
     }
 
 
@@ -82,7 +127,10 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         )
 
         fun checkPermission(permission: String) =
-            ActivityCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+            ActivityCompat.checkSelfPermission(
+                this,
+                permission
+            ) == PackageManager.PERMISSION_GRANTED
 
         fun openPermissionSettings() = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -90,23 +138,22 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         }.run(::startActivity)
 
         val multipleLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()){
-                map->
-                if (map.all{permission -> permission.value}){
-                    if (!checkPermission(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION))
-                        backgroundDialog.show()
-                }
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { map ->
+            if (map.all { permission -> permission.value }) {
+                if (!checkPermission(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION))
+                    backgroundDialog.show()
             }
+        }
 
         // 추후에 Dialog 커스텀 필요할 수 있음 -> Fragment로 변경 등
         dialog = AlertDialog.Builder(this)
             .setTitle("권한 요청")
             .setMessage("어플리케이션을 사용하기 위해서는 권한이 필요합니다.\n권한 요청을 승인해 주세요.")
-            .setPositiveButton("확인"){
-                _, _ ->
+            .setPositiveButton("확인") { _, _ ->
                 multipleLauncher.launch(permissions)
             }
-            .setNegativeButton("종료"){ _, _ ->
+            .setNegativeButton("종료") { _, _ ->
                 finish()
             }
             .create()
@@ -114,15 +161,15 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         backgroundDialog = AlertDialog.Builder(this)
             .setTitle("백그라운드 권한 요청")
             .setMessage("권한 - 위치 탭에서 '항상 허용'에 체크해주세요")
-            .setPositiveButton("확인"){ _, _ ->
+            .setPositiveButton("확인") { _, _ ->
                 openPermissionSettings()
             }
-            .setNegativeButton("종료"){ _, _ ->
+            .setNegativeButton("종료") { _, _ ->
                 finish()
             }
             .create()
 
-        if (!permissions.all{permission -> checkPermission(permission)}) dialog.show()
+        if (!permissions.all { permission -> checkPermission(permission) }) dialog.show()
         else if (!checkPermission(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)) backgroundDialog.show()
     }
 
@@ -132,9 +179,13 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
                 supportFragmentManager, "AddPlace"
             )
         }
+        binding.setting.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
     }
-    override fun addPlace(name: String, coordinate: LatLng) {
-        placeAdapter.addPlace(name, coordinate,geofence)
 
+    override fun addPlace(id: Int, name: String, latitude: String, longitude: String, radius: Float) {
+        placeAdapter.addPlace(0, name, latitude, longitude, radius,geofence)
     }
 }

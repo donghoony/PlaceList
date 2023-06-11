@@ -3,10 +3,10 @@ package org.konkuk.placelist.main
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.konkuk.placelist.Geofence
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.PlacesRowBinding
@@ -25,14 +25,18 @@ class PlaceAdapter(private val db: PlacesListDatabase, var items : ArrayList<Pla
             }
         }
     }
+    fun removeItem(pos: Int) {
+        items.removeAt(pos)
+        notifyItemRemoved(pos)
+    }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
         CoroutineScope(Dispatchers.IO).launch{
             items = db.placesDao().getAll() as ArrayList<Place>
-        }
-        CoroutineScope(Dispatchers.Main).launch {
-            notifyDataSetChanged()
+            withContext(Dispatchers.Main){
+                notifyItemRangeChanged(0, items.size)
+            }
         }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -50,14 +54,23 @@ class PlaceAdapter(private val db: PlacesListDatabase, var items : ArrayList<Pla
         }
     }
 
-    fun addPlace(name: String, coordinate: LatLng,geofence: Geofence) {
+    fun addPlace(id : Int, name: String, latitude: String, longitude: String, radius: Float,geofence: Geofence) {
         CoroutineScope(Dispatchers.IO).launch{
-            db.placesDao().insertAll(Place(0, name, coordinate.latitude, coordinate.longitude, 100f))
+            db.placesDao().insertAll(Place(0, name, latitude, longitude, radius))
             items = db.placesDao().getAll() as ArrayList<Place>
             geofence.ChangeData(items)
+            withContext(Dispatchers.Main){
+                notifyItemInserted(items.size)
+            }
         }
-        CoroutineScope(Dispatchers.Main).launch {
-            notifyDataSetChanged()
+    }
+
+    fun refresh() {
+        CoroutineScope(Dispatchers.IO).launch{
+            items = db.placesDao().getAll() as ArrayList<Place>
+            withContext(Dispatchers.Main){
+                notifyItemRangeChanged(0, items.size)
+            }
         }
     }
 }

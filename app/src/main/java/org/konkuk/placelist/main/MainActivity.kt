@@ -72,11 +72,17 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         val alarmOnOff = prefs.getBoolean("weatherAlarm", true)
 
+        val hour = prefs.getString("hour", "6")
+        val minute = prefs.getString("minute", "0")
+
         val pendingIntent = Intent(this, WeatherAlarmReceiver::class.java).let {
             it.putExtra("code", 1000)
+            it.putExtra("hour", hour)
+            it.putExtra("minute",minute)
             PendingIntent.getBroadcast(this, 1000, it, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
         val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if(!alarmManager.canScheduleExactAlarms()) {
                 Intent().also {
@@ -87,8 +93,6 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         }
 
         if(alarmOnOff) {
-            val hour = prefs.getString("hour", "6")
-            val minute = prefs.getString("minute", "0")
             val calendar = Calendar.getInstance().apply{
                 timeInMillis = System.currentTimeMillis()
                 set(Calendar.HOUR_OF_DAY, hour!!.toInt())
@@ -98,6 +102,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
             if(calendar.before(Calendar.getInstance())) {
                 calendar.add(Calendar.DATE, 1)
             }
+            //alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent)
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent
             )

@@ -1,15 +1,14 @@
 package org.konkuk.placelist.weather
 
 import android.annotation.SuppressLint
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
+import android.os.SystemClock
+import android.provider.Settings
 import android.renderscript.RenderScript
 import android.util.Log
 import android.widget.Toast
@@ -47,10 +46,15 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
     lateinit var baseDate: String
     lateinit var baseTime: String
 
+    private var hour: String? = null
+    private var minute: String? = null
+
     override fun onReceive(context: Context, intent: Intent) {
 
         if (intent.getIntExtra("code", 0) == 1000) {
-            Toast.makeText(context, "alarm ring", Toast.LENGTH_SHORT).show()
+            Log.d("weatherAlarmReceiver", "alarm Ring")
+            hour = intent.getStringExtra("hour")
+            minute = intent.getStringExtra("minute")
             fetchWeatherData(context)
         }
     }
@@ -87,9 +91,31 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
                     )
                     withContext(Dispatchers.Main) {
                         makeNotification(context)
+                        setNextAlarm(context)
                     }
                 }
             }
+    }
+
+    private fun setNextAlarm(context: Context) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val pendingIntent = Intent(context, WeatherAlarmReceiver::class.java).let {
+            it.putExtra("code", 1000)
+            it.putExtra("hour", hour)
+            it.putExtra("minute",minute)
+            PendingIntent.getBroadcast(context, 1000, it, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        }
+
+        val calendar = Calendar.getInstance().apply{
+            timeInMillis = System.currentTimeMillis()
+            set(Calendar.HOUR_OF_DAY, hour!!.toInt())
+            set(Calendar.MINUTE, minute!!.toInt())
+        }
+
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_DAY, pendingIntent
+        )
+        Toast.makeText(context, "set Alarm on $hour : $minute", Toast.LENGTH_SHORT).show()
     }
 
     private fun makeNotification(context: Context) {

@@ -1,5 +1,8 @@
 package org.konkuk.placelist.main
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -25,6 +28,9 @@ import org.konkuk.placelist.databinding.ActivityMainBinding
 import org.konkuk.placelist.domain.Place
 import org.konkuk.placelist.place.PlacesActivity
 import org.konkuk.placelist.setting.SettingsActivity
+import org.konkuk.placelist.weather.WeatherAlarmReceiver
+import java.util.*
+import kotlin.collections.ArrayList
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class MainActivity : AppCompatActivity(), AddPlaceListener {
@@ -39,7 +45,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         initPlaceView()
         getPermissions()
         initSettings()
-
+        setWeatherAlarm()
     }
 
     override fun onStart() {
@@ -49,17 +55,57 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
     private fun initSettings() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
 
-        if (prefs.getString("notification_hour", "") == "" ||
-            prefs.getString("notification_minute", "") == ""
+        if (prefs.getString("hour", "") == "" ||
+            prefs.getString("minute", "") == ""
         ) {
             prefs.edit()
-                .putString("notification_hour", "6")
-                .putString("notification_minute", "0")
+                .putString("hour", "6")
+                .putString("minute", "0")
                 .apply()
         }
-        val hour = prefs.getString("notification_hour", "6")
-        val minute = prefs.getString("notification_minute", "0")
-        Toast.makeText(this, hour.toString() + ":" + minute.toString(), Toast.LENGTH_SHORT).show()
+//        val hour = prefs.getString("notification_hour", "6")
+//        val minute = prefs.getString("notification_minute", "0")
+//        Toast.makeText(this, hour.toString() + ":" + minute.toString(), Toast.LENGTH_SHORT).show()
+    }
+
+    private fun setWeatherAlarm() {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val alarmOnOff = prefs.getBoolean("weatherAlarm", true)
+
+        val pendingIntent = Intent(this, WeatherAlarmReceiver::class.java).let {
+            it.putExtra("code", 1000)
+            PendingIntent.getBroadcast(this, 1000, it, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        }
+        val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if(!alarmManager.canScheduleExactAlarms()) {
+                Intent().also {
+                    it.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
+                    this.startActivity(intent)
+                }
+            }
+        }
+
+        if(alarmOnOff) {
+            val hour = prefs.getString("hour", "6")
+            val minute = prefs.getString("minute", "0")
+            val calendar = Calendar.getInstance().apply{
+                timeInMillis = System.currentTimeMillis()
+                set(Calendar.HOUR_OF_DAY, hour!!.toInt())
+                set(Calendar.MINUTE, minute!!.toInt())
+            }
+            //이미 지난 시간 설정한 경우 다음날 같은 시간으로 설정
+            if(calendar.before(Calendar.getInstance())) {
+                calendar.add(Calendar.DATE, 1)
+            }
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent
+            )
+            Toast.makeText(this, "set Alarm on $hour : $minute", Toast.LENGTH_SHORT).show()
+        } else {
+            alarmManager.cancel(pendingIntent)
+            Toast.makeText(this, "set Alarm off", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun initPlaceView() {
@@ -119,7 +165,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         val permissions = arrayOf(
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
-            android.Manifest.permission.POST_NOTIFICATIONS,
+            android.Manifest.permission.POST_NOTIFICATIONS
         )
 
         fun checkPermission(permission: String) =

@@ -47,7 +47,7 @@ class AddTodoDialogFragment : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        context?.dialogFragmentResize(1f, 0.4f)
+        context?.dialogFragmentResize(1f, 0.5f)
 
         val window = dialog!!.window
 //        window!!.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)

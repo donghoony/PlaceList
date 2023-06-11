@@ -14,6 +14,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.preference.PreferenceManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -56,6 +57,10 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
             hour = intent.getStringExtra("hour")
             minute = intent.getStringExtra("minute")
             fetchWeatherData(context)
+        }
+
+        if(intent.action == "android.intent.action.BOOT_COMPLETED") {
+            setAlarm(context)
         }
     }
 
@@ -115,7 +120,7 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_DAY, pendingIntent
         )
-        Toast.makeText(context, "set Alarm on $hour : $minute", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(context, "set Alarm on $hour : $minute", Toast.LENGTH_SHORT).show()
     }
 
     private fun makeNotification(context: Context) {
@@ -237,5 +242,42 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
             }
         }
         baseDate = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(cal.time)
+    }
+
+    //부팅시에 알람 설정
+    private fun setAlarm(context: Context) {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        val alarmOnOff = prefs.getBoolean("weatherAlarm", true)
+
+        val hour = prefs.getString("hour", "6")
+        val minute = prefs.getString("minute", "0")
+
+        val pendingIntent = Intent(context, WeatherAlarmReceiver::class.java).let {
+            it.putExtra("code", 1000)
+            it.putExtra("hour", hour)
+            it.putExtra("minute",minute)
+            PendingIntent.getBroadcast(context, 1000, it, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        }
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        if(alarmOnOff) {
+            val calendar = Calendar.getInstance().apply{
+                timeInMillis = System.currentTimeMillis()
+                set(Calendar.HOUR_OF_DAY, hour!!.toInt())
+                set(Calendar.MINUTE, minute!!.toInt())
+            }
+            //이미 지난 시간 설정한 경우 다음날 같은 시간으로 설정
+            if(calendar.before(Calendar.getInstance())) {
+                calendar.add(Calendar.DATE, 1)
+            }
+            //alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent)
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent
+            )
+            //Toast.makeText(context, "set Alarm on $hour : $minute", Toast.LENGTH_SHORT).show()
+        } else {
+            alarmManager.cancel(pendingIntent)
+            //Toast.makeText(context, "set Alarm off", Toast.LENGTH_SHORT).show()
+        }
     }
 }

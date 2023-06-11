@@ -87,10 +87,10 @@ class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferen
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent
             )
-            Toast.makeText(this, "set Alarm on $hour : $minute", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this, "set Alarm on $hour : $minute", Toast.LENGTH_SHORT).show()
         } else {
             alarmManager.cancel(pendingIntent)
-            Toast.makeText(this, "set Alarm off", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this, "set Alarm off", Toast.LENGTH_SHORT).show()
         }
     }
 

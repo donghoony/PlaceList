@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build.VERSION_CODES.S
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.Geofence
@@ -13,16 +14,26 @@ import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.konkuk.placelist.domain.Place
+import java.io.Serializable
 
 
-class Geofence(private val context: Context) {
+class MyGeofence(private val context: Context) :Serializable {
     private val geofencingClient: GeofencingClient = LocationServices.getGeofencingClient(context)
     private val geofenceList: MutableList<Geofence> = mutableListOf()
 
+
+    companion object {
+        private var instance: MyGeofence? = null
+        fun getInstance(context: Context): MyGeofence {
+            return instance ?: synchronized(this) {
+                instance ?: MyGeofence(context).also { instance = it }
+            }
+        }
+        fun getInstance(): MyGeofence {
+            return instance!!
+        }
+    }
 
 //데이터베이스 데이터 추가 삭제나 변경 있을 시 Main 의 geofence 객체에서 이 함수 호출하면 됨
     suspend fun ChangeData(items: ArrayList<Place>) {
@@ -34,7 +45,7 @@ class Geofence(private val context: Context) {
 
             geofenceList.add(
                 getGeofence(
-                    now.name,
+                    now.id.toString(),
                     LatLng(now.latitude.toDouble(), now.longitude.toDouble()),
                     now.detectRange
                 )

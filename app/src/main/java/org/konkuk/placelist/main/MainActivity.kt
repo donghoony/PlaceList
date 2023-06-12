@@ -20,7 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.konkuk.placelist.Geofence
+import org.konkuk.placelist.MyGeofence
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.ActivityMainBinding
 import org.konkuk.placelist.domain.Place
@@ -31,7 +31,7 @@ import org.konkuk.placelist.setting.SettingsActivity
 class MainActivity : AppCompatActivity(), AddPlaceListener {
     lateinit var binding: ActivityMainBinding
     lateinit var placeAdapter: PlaceAdapter
-    lateinit var geofence: Geofence
+    lateinit var myGeofence: MyGeofence
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -44,11 +44,11 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
     }
     //geofence 객체 생성, database 삭제 추가 변경시 이 객체에서 ChangeData() 함수 호출해주면 됨
     private fun initGeofence(){
-        geofence= Geofence(this@MainActivity)
+        myGeofence= MyGeofence.getInstance(this)
     }
     override fun onStart() {
         super.onStart()
-        if(this::placeAdapter.isInitialized) placeAdapter.refresh(geofence)
+        if(this::placeAdapter.isInitialized) placeAdapter.refresh()
     }
     private fun initSettings() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
@@ -70,7 +70,6 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         val db = PlacesListDatabase.getDatabase(this)
         binding.placelist.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-
         CoroutineScope(Dispatchers.IO).launch {
             val items = db.placesDao().getAll() as ArrayList<Place>
             placeAdapter = PlaceAdapter(db, items)
@@ -107,6 +106,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
                     db.placesDao().delete(placeAdapter.items[viewHolder.adapterPosition])
                     withContext(Dispatchers.Main) {
                         placeAdapter.removeItem(viewHolder.adapterPosition)
+                        myGeofence.ChangeData(placeAdapter.items)
                     }
                 }
             }
@@ -186,6 +186,6 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
     }
 
     override fun addPlace(id: Int, name: String, latitude: String, longitude: String, radius: Float) {
-        placeAdapter.addPlace(0, name, latitude, longitude, radius,geofence)
+        placeAdapter.addPlace(0, name, latitude, longitude, radius,myGeofence)
     }
 }

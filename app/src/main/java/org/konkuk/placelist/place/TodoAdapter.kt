@@ -8,8 +8,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.konkuk.placelist.MyGeofence
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.PlacesRowBinding
+import org.konkuk.placelist.domain.Place
 import org.konkuk.placelist.domain.Todo
 
 class TodoAdapter(private val db: PlacesListDatabase, var items : ArrayList<Todo>, private val placeId: Int) : RecyclerView.Adapter<TodoAdapter.ViewHolder>(){
@@ -58,6 +60,20 @@ class TodoAdapter(private val db: PlacesListDatabase, var items : ArrayList<Todo
         CoroutineScope(Dispatchers.IO).launch{
             db.TodoDao().insert(todo)
             items = db.TodoDao().findTodoByPlaceId(placeId) as ArrayList<Todo>
+
+            val placedb= db.placesDao().getAll() as ArrayList<Place>
+            var p: Place? = null
+            for (now in placedb) {
+                if (now.id.toString() == placeId.toString()) {
+                    p = now
+                }
+            }
+            if(p!!.isEnter==true){
+                p.isEnter=false
+                db.placesDao().update(p)
+            }
+            MyGeofence.getInstance().ChangeData(placedb)
+
             for(i in items){
                 Log.i("ITEM", i.name)
             }

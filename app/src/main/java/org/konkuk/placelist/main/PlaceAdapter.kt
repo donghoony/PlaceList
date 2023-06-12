@@ -7,7 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.konkuk.placelist.Geofence
+import org.konkuk.placelist.MyGeofence
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.PlacesRowBinding
 import org.konkuk.placelist.domain.Place
@@ -54,21 +54,20 @@ class PlaceAdapter(private val db: PlacesListDatabase, var items : ArrayList<Pla
         }
     }
 
-    fun addPlace(id : Int, name: String, latitude: String, longitude: String, radius: Float,geofence: Geofence) {
+    fun addPlace(id : Int, name: String, latitude: String, longitude: String, radius: Float, myGeofence: MyGeofence) {
         CoroutineScope(Dispatchers.IO).launch{
             db.placesDao().insertAll(Place(0, name, latitude, longitude, radius))
             items = db.placesDao().getAll() as ArrayList<Place>
-            geofence.ChangeData(items)
+            myGeofence.ChangeData(items)
             withContext(Dispatchers.Main){
                 notifyItemInserted(items.size)
             }
         }
     }
 
-    fun refresh(geofence: Geofence) {
+    fun refresh() {
         CoroutineScope(Dispatchers.IO).launch{
             items = db.placesDao().getAll() as ArrayList<Place>
-            geofence.ChangeData(items)
             withContext(Dispatchers.Main){
                 notifyItemRangeChanged(0, items.size)
             }

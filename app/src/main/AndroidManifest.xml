@@ -26,6 +26,8 @@
             android:name=".GeofenceBroadcastReceiver"
             android:enabled="true"
             android:exported="true" />
+        <activity android:name=".setting.SettingsActivity"
+            android:exported="false"/>
         <activity
             android:name=".place.PlacesActivity"
             android:exported="false" />

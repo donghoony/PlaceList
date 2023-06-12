@@ -11,5 +11,6 @@ data class Place(
     var name: String,
     var latitude: String,
     var longitude: String,
-    var detectRange: Float
+    var detectRange: Float,
+    var isEnter: Boolean=false
     ) : Serializable

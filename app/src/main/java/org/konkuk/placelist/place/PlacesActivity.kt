@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.konkuk.placelist.MyGeofence
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.ActivityPlacesBinding
 import org.konkuk.placelist.domain.Place
@@ -21,10 +22,11 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
     lateinit var binding: ActivityPlacesBinding
     lateinit var place : Place
     lateinit var todoAdapter: TodoAdapter
+    lateinit var  geo: MyGeofence
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPlacesBinding.inflate(layoutInflater)
-
+        geo= MyGeofence.getInstance(this)
         place = intent.getSerializableExtra("place", Place::class.java)!!
         binding.name.text = place.name
         setContentView(binding.root)
@@ -97,6 +99,7 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
         val updatedPlace = Place(id, name, latitude, longitude, radius)
         CoroutineScope(Dispatchers.IO).launch {
             db.placesDao().update(updatedPlace)
+            geo.ChangeData(db.placesDao().getAll() as ArrayList<Place>)
         }
         this@PlacesActivity.place = updatedPlace
         binding.name.text = name

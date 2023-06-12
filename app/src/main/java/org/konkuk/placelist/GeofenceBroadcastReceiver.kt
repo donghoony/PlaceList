@@ -59,39 +59,47 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                     CoroutineScope(Dispatchers.IO).launch {
 
                         val db = PlacesListDatabase.getDatabase(context!!)
-                        val placeitems=db.placesDao().getAll() as ArrayList<Place>
-                        var number:Int=-1
+                        val placeitems = db.placesDao().getAll() as ArrayList<Place>
+                        var p: Place? = null
                         for (now in placeitems) {
-                           if(now.name.toString()==it.requestId.toString()){
-                               number=now.id
-                           }
+                            if (now.id.toString() == it.requestId.toString()) {
+                                p = now
+                            }
                         }
-                       if(number!=-1){
-                           //Todo정보 items로 가져오기 이 정보 가공해서 showNotification으로 알림 발송
-                            val items = db.TodoDao().findTodoByPlaceId(number)
-                            var Msg:String=""
-                           for(i in items){
-                               if(i.situation==PlaceSituation.BOTH){
-                                   Msg+=i.name+" "
-                               }
-                               else if(i.situation==PlaceSituation.ENTER&&geofenceTransition==Geofence.GEOFENCE_TRANSITION_ENTER ){
-                                   Msg+=i.name+" "
-                               }else if(i.situation==PlaceSituation.ESCAPE&&geofenceTransition==Geofence.GEOFENCE_TRANSITION_EXIT){
-                                   Msg+=i.name+" "
-                               }
-                           }
+                        //Todo정보 items로 가져오기 이 정보 가공해서 showNotification으로 알림 발송
+                        val items = db.TodoDao().findTodoByPlaceId(p!!.id.toString().toInt())
+                        if (items.size != 0) {
+                            var Msg: String = ""
+                            for (i in items) {
+                                if (i.situation == PlaceSituation.BOTH) {
+                                    Msg += i.name + " "
+                                } else if (i.situation == PlaceSituation.ENTER && geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
+                                    Msg += i.name + " "
+                                } else if (i.situation == PlaceSituation.ESCAPE && geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+                                    Msg += i.name + " "
+                                }
+                            }
+                            if (!p!!.isEnter && geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
 
-                           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                               createNotificationChannel(context!!)
-                           }
-                           //보내는 메세지 it.requestid== 장소이름 , transitionMsg enter or exit msg는 items가공해서 보낼 메세지 작성
-                           showNotification(context!!,it.requestId+transitionMsg,Msg)
-
-
-                       }
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    createNotificationChannel(context!!)
+                                }
+                                //보내는 메세지 it.requestid== 장소이름 , transitionMsg enter or exit msg는 items가공해서 보낼 메세지 작성
+                                showNotification(context!!, p.name + " " + transitionMsg, Msg)
+                                p.isEnter = true
+                                db.placesDao().update(p)
+                            } else if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    createNotificationChannel(context!!)
+                                }
+                                //보내는 메세지 it.requestid== 장소이름 , transitionMsg enter or exit msg는 items가공해서 보낼 메세지 작성
+                                showNotification(context!!, p.name + " " + transitionMsg, Msg)
+                                p.isEnter = false
+                                db.placesDao().update(p)
+                            }
+                        }
 
                     }
-
 
 
                 }
@@ -107,7 +115,8 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             val channelDescription = "My Channel Description"
             val channelImportance = NotificationManager.IMPORTANCE_DEFAULT
 
-           val notificationChannel = NotificationChannel(CHANNEL_ID, channelName, channelImportance)
+            val notificationChannel =
+                NotificationChannel(CHANNEL_ID, channelName, channelImportance)
             notificationChannel!!.description = channelDescription
 
             val notificationManager = context.getSystemService(NotificationManager::class.java)
@@ -120,10 +129,15 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
         val intent = Intent(context, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.img_p)
             .setContentTitle(title)
             .setContentText(msg)
             .setContentIntent(pendingIntent)

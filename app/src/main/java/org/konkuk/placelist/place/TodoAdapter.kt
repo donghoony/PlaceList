@@ -62,16 +62,15 @@ class TodoAdapter(private val db: PlacesListDatabase, var items : ArrayList<Todo
             items = db.TodoDao().findTodoByPlaceId(placeId) as ArrayList<Todo>
 
             val placedb= db.placesDao().getAll() as ArrayList<Place>
-            var p: Place? = null
             for (now in placedb) {
                 if (now.id.toString() == placeId.toString()) {
-                    p = now
+                    if(now.isEnter==true){
+                        now.isEnter=false
+                    }
+                    db.placesDao().update(now)
                 }
             }
-            if(p!!.isEnter==true){
-                p.isEnter=false
-                db.placesDao().update(p)
-            }
+
             MyGeofence.getInstance().ChangeData(placedb)
 
             for(i in items){

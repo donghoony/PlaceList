@@ -26,7 +26,7 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPlacesBinding.inflate(layoutInflater)
-        geo= MyGeofence.getInstance(this)
+        geo= MyGeofence.getInstance()
         place = intent.getSerializableExtra("place", Place::class.java)!!
         binding.name.text = place.name
         setContentView(binding.root)
@@ -86,7 +86,7 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
     }
 
     override fun update(todo: Todo) {
-        todoAdapter.addTodo(todo)
+        todoAdapter.addTodo(todo,geo)
     }
 
     override fun getTodosPlaceId(): Int {

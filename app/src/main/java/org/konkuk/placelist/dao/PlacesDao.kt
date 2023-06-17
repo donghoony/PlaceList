@@ -23,4 +23,6 @@ interface PlacesDao {
     @Delete
     fun delete(place: Place)
 
+    @Query("select * from places p where p.place_id = :placeId")
+    fun findPlaceByPlaceId(placeId: Int): Place
 }

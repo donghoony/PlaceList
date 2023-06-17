@@ -1,5 +1,6 @@
 package org.konkuk.placelist.main
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -44,7 +45,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
     }
     //geofence 객체 생성, database 삭제 추가 변경시 이 객체에서 ChangeData() 함수 호출해주면 됨
     private fun initGeofence(){
-        myGeofence= MyGeofence.getInstance(this)
+        myGeofence= MyGeofence.makeInstance(this)
     }
     override fun onStart() {
         super.onStart()

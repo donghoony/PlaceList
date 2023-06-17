@@ -56,29 +56,27 @@ class TodoAdapter(private val db: PlacesListDatabase, var items : ArrayList<Todo
         }
     }
 
-    fun addTodo(todo: Todo) {
+    fun addTodo(todo: Todo,geo :MyGeofence) {
         CoroutineScope(Dispatchers.IO).launch{
             db.TodoDao().insert(todo)
             items = db.TodoDao().findTodoByPlaceId(placeId) as ArrayList<Todo>
 
-            val placedb= db.placesDao().getAll() as ArrayList<Place>
-            for (now in placedb) {
-                if (now.id.toString() == placeId.toString()) {
-                    if(now.isEnter==true){
-                        now.isEnter=false
-                    }
-                    db.placesDao().update(now)
-                }
-            }
-
-            MyGeofence.getInstance().ChangeData(placedb)
+            val pp=db.placesDao().findPlaceByPlaceId(placeId)
+            if(pp.isEnter==true)pp.isEnter=false
+            db.placesDao().update(pp)
+            geo.ChangeData(db.placesDao().getAll() as ArrayList<Place>)
 
             for(i in items){
                 Log.i("ITEM", i.name)
             }
             withContext(Dispatchers.Main){
                 notifyItemInserted(items.size)
+
             }
+
+
         }
+
+
     }
 }

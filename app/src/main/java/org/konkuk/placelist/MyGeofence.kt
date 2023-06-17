@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.os.Build.VERSION_CODES.S
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import com.google.android.gms.common.api.Api.Client
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
@@ -25,18 +26,26 @@ class MyGeofence(private val context: Context) :Serializable {
 
     companion object {
         private var instance: MyGeofence? = null
-        fun getInstance(context: Context): MyGeofence {
+        fun makeInstance(context: Context): MyGeofence {
             return instance ?: synchronized(this) {
                 instance ?: MyGeofence(context).also { instance = it }
             }
         }
         fun getInstance(): MyGeofence {
+            if (instance == null) {
+                synchronized(this) {
+                    if (instance == null) {
+                        throw IllegalStateException("MyGeofence is not initialized.")
+                    }
+                }
+            }
             return instance!!
         }
+
     }
 
 //데이터베이스 데이터 추가 삭제나 변경 있을 시 Main 의 geofence 객체에서 이 함수 호출하면 됨
-    suspend fun ChangeData(items: ArrayList<Place>) {
+    fun ChangeData(items: ArrayList<Place>) {
 
         geofenceList.clear()
         for (now in items) {
@@ -51,8 +60,8 @@ class MyGeofence(private val context: Context) :Serializable {
                 )
             )
         }
-        removeGeofences()
-        addGeofences()
+        removegeo()
+        addgeo()
     }
 
     private fun getGeofence(
@@ -92,7 +101,7 @@ class MyGeofence(private val context: Context) :Serializable {
     }
 
 
-    private fun addGeofences() {
+    private fun addgeo() {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -115,7 +124,7 @@ class MyGeofence(private val context: Context) :Serializable {
 
     }
 
-    private fun removeGeofences() {
+    private fun removegeo() {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION

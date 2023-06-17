@@ -98,7 +98,6 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                                 db.placesDao().update(p)
                             }
                         }
-
                     }
 
 

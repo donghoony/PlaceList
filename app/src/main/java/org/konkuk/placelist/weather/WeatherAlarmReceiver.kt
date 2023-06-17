@@ -76,16 +76,46 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         )
             .addOnSuccessListener { location ->
                 if (location == null) {
+                    Log.d("locationRequest", "null")
                     initLocation(context)
+                    return@addOnSuccessListener
                 }
                 else {
-                    fetchWeatherData(context, location.longitude, location.latitude)
+                    Log.d("locationRequest", "not null")
+                    scope.launch {
+                        Log.d("locationRequest", "coor: $location.latitude $location.longitude")
+                        val monitoringStation =
+                            Repository.getNearbyMonitoringStation(location.latitude, location.longitude)
+                        measuredValue =
+                            Repository.getLatestAirQualityData(monitoringStation!!.stationName!!)
+                        stationName = monitoringStation.stationName.toString()
+
+                        Log.d("weather", measuredValue?.o3Grade.toString())
+                        Log.d("weather", measuredValue?.pm10Grade.toString())
+                        Log.d("weather", measuredValue?.pm25Grade.toString())
+
+                        setBaseTime()
+
+                        val curPoint = GpsConverter.dfsXyConv(location.latitude, location.longitude)
+                        weatherForecasts = Repository.getWeatherForecasts(
+                            baseDate,
+                            baseTime,
+                            "JSON",
+                            curPoint.x,
+                            curPoint.y
+                        )
+                        withContext(Dispatchers.Main) {
+                            makeNotification(context)
+                            setNextAlarm(context)
+                        }
+                    }
+                    return@addOnSuccessListener
                 }
             }
     }
-
     private fun fetchWeatherData(context: Context, latitude:Double, longitude: Double) {
         scope.launch {
+            Log.d("locationRequest", "coor: $latitude $longitude")
             val monitoringStation =
                 Repository.getNearbyMonitoringStation(latitude, longitude)
             measuredValue =
@@ -113,6 +143,7 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
             }
         }
     }
+
     private fun initLocation(context: Context) {
         locationRequest = LocationRequest.create().apply {
             interval = 1000 * 60 * 60

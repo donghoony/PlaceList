@@ -1,6 +1,5 @@
 package org.konkuk.placelist.place
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -58,11 +57,8 @@ class TodoAdapter(private val db: PlacesListDatabase, var items : ArrayList<Todo
         CoroutineScope(Dispatchers.IO).launch{
             db.TodoDao().insert(todo)
             items = db.TodoDao().findTodoByPlaceId(placeId) as ArrayList<Todo>
-            for(i in items){
-                Log.i("ITEM", i.name)
-            }
             withContext(Dispatchers.Main){
-                notifyItemInserted(items.size)
+                notifyItemRangeChanged(0, items.size)
             }
         }
     }

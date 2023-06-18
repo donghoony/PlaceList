@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.ToggleButton
 import androidx.annotation.RequiresApi
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
@@ -24,8 +25,9 @@ import android.os.Bundle as Bundle1
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class AddTodoDialogFragment : DialogFragment() {
     lateinit var binding: FragmentAddTodoBinding
-    var repeat = arrayOf(false, false, false, false, false, false, false)
-    lateinit var addTodoListener : AddTodoListener
+    lateinit var repeatToggleButtons: Array<ToggleButton>
+    lateinit var addTodoListener: AddTodoListener
+    var todo: Todo? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,20 +44,20 @@ class AddTodoDialogFragment : DialogFragment() {
         }
         addTodoListener = context as AddTodoListener
         initButtons()
+        if (arguments != null){
+            todo = arguments?.getSerializable("todo", Todo::class.java)!!
+            binding.todoname.setText(todo?.name)
+            binding.outToggleBtn.isChecked = (todo?.situation == PlaceSituation.BOTH) or (todo?.situation == PlaceSituation.ESCAPE)
+            binding.inToggleButton.isChecked = (todo?.situation == PlaceSituation.BOTH) or (todo?.situation == PlaceSituation.ENTER)
+            val array = arrayOf(binding.sun, binding.mon, binding.tue, binding.wed, binding.thu, binding.fri, binding.sat)
+            for(i in 0 .. 6) array[i].isChecked = ((todo!!.repeatDays) and (1 shl i)) == (1 shl i)
+        }
         return binding.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-        context?.dialogFragmentResize(1f, 0.5f)
-
-        val window = dialog!!.window
-//        window!!.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-        window!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
     }
 
     private fun initButtons() {
         with(binding) {
+            repeatToggleButtons = arrayOf(sun, mon, tue, wed, thu, fri, sat)
             inToggleButton.setOnCheckedChangeListener { btn, isChecked ->
                 if (isChecked) btn.background = ResourcesCompat.getDrawable(resources,
                     R.drawable.toggle_on, null)
@@ -78,13 +80,35 @@ class AddTodoDialogFragment : DialogFragment() {
             }
             submitBtn.setOnClickListener {
                 val placeSituation = if (inToggleButton.isChecked and outToggleBtn.isChecked) PlaceSituation.BOTH else (if (inToggleButton.isChecked) PlaceSituation.ENTER else PlaceSituation.ESCAPE)
-                addTodoListener.update(Todo(0, addTodoListener.getTodosPlaceId(), todoname.text.toString(), false, TodoPriority.MEDIUM, placeSituation, 0.0))
+                var repeatValue = 0
+                for(i in 0..6){
+                    if (!repeatToggleButtons[i].isChecked) continue
+                    repeatValue = repeatValue or (1 shl i)
+                }
+                // 일요일부터 2진수로 7개 (가장 오른쪽이 일요일) -> 1111111(2) : 모두 반복, 0000001 : 토요일만 반복
+                var todoId = 0
+                if (todo != null) todoId = todo!!.id
+                addTodoListener.update(Todo(todoId, addTodoListener.getTodosPlaceId(), todoname.text.toString(), false, TodoPriority.MEDIUM, repeatValue, placeSituation))
                 dismiss()
             }
         }
     }
 
-
+    override fun onResume() {
+        super.onResume()
+        context?.dialogFragmentResize(1f, 0.5f)
+        val window = dialog!!.window
+        window!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+    }
+    companion object{
+        fun toInstance(todo: Todo) : AddTodoDialogFragment {
+            val obj = AddTodoDialogFragment()
+            val args = Bundle1()
+            args.putSerializable("todo", todo)
+            obj.arguments = args
+            return obj
+        }
+    }
     private fun Context.dialogFragmentResize(w: Float, h: Float) {
         val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         if (Build.VERSION.SDK_INT < 30) {

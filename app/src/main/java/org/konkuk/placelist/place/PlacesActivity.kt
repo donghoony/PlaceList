@@ -1,7 +1,6 @@
 package org.konkuk.placelist.place
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -40,9 +39,9 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
             todoAdapter = TodoAdapter(db, items, place.id)
             todoAdapter.itemClickListener = object : TodoAdapter.OnItemClickListener {
                 override fun onItemClick(data: Todo, pos: Int) {
-                    Toast.makeText(this@PlacesActivity,
-                        data.name,
-                        Toast.LENGTH_SHORT).show()
+                    // 수정은 여기에서 진행해야 함
+                    // DialogFragment으로 Todo 넘겨주기
+                    AddTodoDialogFragment.toInstance(data).show(supportFragmentManager, "EditTodo")
 
                 }
             }

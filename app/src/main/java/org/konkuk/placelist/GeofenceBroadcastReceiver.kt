@@ -23,6 +23,8 @@ import kotlinx.coroutines.launch
 import org.konkuk.placelist.domain.Place
 import org.konkuk.placelist.domain.enums.PlaceSituation
 import org.konkuk.placelist.main.MainActivity
+import java.util.*
+import kotlin.collections.ArrayList
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
     private val CHANNEL_ID = "my_channel_id"
@@ -68,20 +70,25 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                                 p = now
                             }
                         }
+                        val calendar = Calendar.getInstance()
+                        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+
                         //Todo정보 items로 가져오기 이 정보 가공해서 showNotification으로 알림 발송
                         val items = db.TodoDao().findTodoByPlaceId(p!!.id.toString().toInt())
 //                        if (items.size != 0) {
                             var Msg: String = ""
                             for (i in items) {
-                                if (i.situation == PlaceSituation.BOTH) {
-                                    Msg += i.name + " "
-                                } else if (i.situation == PlaceSituation.ENTER && geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
-                                    Msg += i.name + " "
-                                } else if (i.situation == PlaceSituation.ESCAPE && geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-                                    Msg += i.name + " "
+                                if(!i.isCompleted&&i.repeatDays and (1 shl (dayOfWeek - 1)) != 0 ){
+                                    if (i.situation == PlaceSituation.BOTH) {
+                                        Msg += i.name + " "
+                                    } else if (i.situation == PlaceSituation.ENTER && geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
+                                        Msg += i.name + " "
+                                    } else if (i.situation == PlaceSituation.ESCAPE && geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+                                        Msg += i.name + " "
+                                    }
                                 }
-                            }
 
+                            }
                             if (!p!!.isEnter && geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
 
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

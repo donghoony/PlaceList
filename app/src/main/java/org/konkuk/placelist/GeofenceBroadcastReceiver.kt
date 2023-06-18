@@ -31,7 +31,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
     private var notificationIdCounter = 0
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.d("지오펜스 리시버","지오펜스 리시버")
+        Log.d("지오펜스 리시버", "지오펜스 리시버")
         val geofencingEvent = GeofencingEvent.fromIntent(intent!!)
 
         if (geofencingEvent!!.hasError()) {
@@ -76,40 +76,42 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                         //Todo정보 items로 가져오기 이 정보 가공해서 showNotification으로 알림 발송
                         val items = db.TodoDao().findTodoByPlaceId(p!!.id.toString().toInt())
 //                        if (items.size != 0) {
-                            var Msg: String = ""
-                            for (i in items) {
-                                if(!i.isCompleted&&i.repeatDays and (1 shl (dayOfWeek - 1)) != 0 ){
-                                    if (i.situation == PlaceSituation.BOTH) {
-                                        Msg += i.name + " "
-                                    } else if (i.situation == PlaceSituation.ENTER && geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
-                                        Msg += i.name + " "
-                                    } else if (i.situation == PlaceSituation.ESCAPE && geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-                                        Msg += i.name + " "
-                                    }
+                        var Msg: String = ""
+                        for (i in items) {
+                            if (!i.isCompleted && ((i.repeatDays and (1 shl (dayOfWeek - 1)) != 0)|| i.repeatDays == 0)) {
+                                if (i.situation == PlaceSituation.BOTH) {
+                                    Msg += i.name + " "
+                                } else if (i.situation == PlaceSituation.ENTER && geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
+                                    Msg += i.name + " "
+                                } else if (i.situation == PlaceSituation.ESCAPE && geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+                                    Msg += i.name + " "
                                 }
-
                             }
-                            if (!p!!.isEnter && geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
 
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                    createNotificationChannel(context!!)
-                                }
-                                //보내는 메세지 it.requestid== 장소이름 , transitionMsg enter or exit msg는 items가공해서 보낼 메세지 작성
-                                showNotification(context!!, p.name + " " + transitionMsg, Msg)
-                                p.isEnter = true
-                                db.placesDao().update(p)
-                            } else if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                    createNotificationChannel(context!!)
-                                }
-                                //보내는 메세지 it.requestid== 장소이름 , transitionMsg enter or exit msg는 items가공해서 보낼 메세지 작성
-                                showNotification(context!!, p.name + " " + transitionMsg, Msg)
-                                p.isEnter = false
-                                db.placesDao().update(p)
+                        }
+                        createNotificationChannel(context!!)
+                        showNotification(context!!, p.name + " " + transitionMsg, Msg)
+                        if (!p!!.isEnter && geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                createNotificationChannel(context!!)
                             }
+                            //보내는 메세지 it.requestid== 장소이름 , transitionMsg enter or exit msg는 items가공해서 보낼 메세지 작성
+                            showNotification(context!!, p.name + " " + transitionMsg, Msg)
+                            p.isEnter = true
+                            db.placesDao().update(p)
+                        } else if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                createNotificationChannel(context!!)
+                            }
+                            //보내는 메세지 it.requestid== 장소이름 , transitionMsg enter or exit msg는 items가공해서 보낼 메세지 작성
+                            showNotification(context!!, p.name + " " + transitionMsg, Msg)
+                            p.isEnter = false
+                            db.placesDao().update(p)
+                        }
 
                     }
-                    Log.d("리시버 엔드","리시버 엔드")
+                    Log.d("리시버 엔드", "리시버 엔드")
 
                 }
 

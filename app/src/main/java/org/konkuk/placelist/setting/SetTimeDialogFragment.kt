@@ -35,8 +35,8 @@ class SetTimeDialogFragment : DialogFragment() {
         act = context as SettingsActivity
         prefs = PreferenceManager.getDefaultSharedPreferences(act)
 
-        val hour = prefs?.getString("notification_hour", "6").toString()
-        val minute = prefs?.getString("notification_minute", "0").toString()
+        val hour = prefs?.getString("hour", "6").toString()
+        val minute = prefs?.getString("minute", "0").toString()
 
         val isSystem24Hour = DateFormat.is24HourFormat(context)
 
@@ -54,8 +54,8 @@ class SetTimeDialogFragment : DialogFragment() {
             }
             submitBtn.setOnClickListener {
                 prefs!!.edit()
-                    .putString("notification_hour", "${timePicker.hour}")
-                    .putString("notification_minute", "${timePicker.minute}")
+                    .putString("hour", "${timePicker.hour}")
+                    .putString("minute", "${timePicker.minute}")
                     .apply()
                 dismiss()
             }

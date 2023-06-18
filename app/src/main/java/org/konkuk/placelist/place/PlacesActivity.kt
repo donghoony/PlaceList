@@ -49,7 +49,6 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
                 }
 
                 override fun onItemCheck(data: Todo, pos: Int, isChecked: Boolean) {
-                    Toast.makeText(this@PlacesActivity, isChecked.toString(), Toast.LENGTH_SHORT).show()
                     val db = PlacesListDatabase.getDatabase(this@PlacesActivity)
                     //update isCompleted
                     if(isChecked) {

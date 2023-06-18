@@ -18,6 +18,9 @@ class IntroActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if(savedInstanceState != null) {
+            return
+        }
         binding = ActivityIntroBinding.inflate(layoutInflater)
         setContentView(binding.root)
         handler.postDelayed({

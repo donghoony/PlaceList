@@ -201,12 +201,6 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
             )
         }
 
-        val calendar = Calendar.getInstance().apply {
-            timeInMillis = System.currentTimeMillis()
-            set(Calendar.HOUR_OF_DAY, hour!!.toInt())
-            set(Calendar.MINUTE, minute!!.toInt())
-        }
-
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.ELAPSED_REALTIME_WAKEUP,
             SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_DAY,

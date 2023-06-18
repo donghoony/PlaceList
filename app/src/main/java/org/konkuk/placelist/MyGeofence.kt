@@ -62,7 +62,8 @@ class MyGeofence(private val context: Context) :Serializable {
         }
         removegeo()
         addgeo()
-    }
+
+}
 
     private fun getGeofence(
         reqId: String,
@@ -136,6 +137,7 @@ class MyGeofence(private val context: Context) :Serializable {
         geofencingClient.removeGeofences(geofencePendingIntent)?.run {
             addOnSuccessListener {
                 Log.d("geofence remove success", "success")
+                geofenceList.clear()
             }
             addOnFailureListener {
                 Log.d("geofence remove fail", "fail")

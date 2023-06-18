@@ -61,11 +61,6 @@ class TodoAdapter(private val db: PlacesListDatabase, var items : ArrayList<Todo
             db.TodoDao().insert(todo)
             items = db.TodoDao().findTodoByPlaceId(placeId) as ArrayList<Todo>
 
-            val pp=db.placesDao().findPlaceByPlaceId(placeId)
-            if(pp.isEnter==true)pp.isEnter=false
-            db.placesDao().update(pp)
-            geo.ChangeData(db.placesDao().getAll() as ArrayList<Place>)
-
             for(i in items){
                 Log.i("ITEM", i.name)
             }

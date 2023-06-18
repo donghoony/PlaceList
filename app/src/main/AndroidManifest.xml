@@ -25,14 +25,12 @@
         <receiver
             android:name=".GeofenceBroadcastReceiver"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="false" >
+        </receiver>
         <activity android:name=".setting.SettingsActivity"
             android:exported="false"/>
         <activity
             android:name=".place.PlacesActivity"
-            android:exported="false" />
-        <activity
-            android:name=".TodoActivity"
             android:exported="false" />
         <activity
             android:name=".intro.IntroActivity"

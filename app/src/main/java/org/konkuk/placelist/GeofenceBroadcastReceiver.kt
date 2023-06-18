@@ -29,7 +29,9 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
     private var notificationIdCounter = 0
 
     override fun onReceive(context: Context?, intent: Intent?) {
+        Log.d("지오펜스 리시버","지오펜스 리시버")
         val geofencingEvent = GeofencingEvent.fromIntent(intent!!)
+
         if (geofencingEvent!!.hasError()) {
             val errorMessage = GeofenceStatusCodes.getStatusCodeString(geofencingEvent.errorCode)
             return
@@ -68,7 +70,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                         }
                         //Todo정보 items로 가져오기 이 정보 가공해서 showNotification으로 알림 발송
                         val items = db.TodoDao().findTodoByPlaceId(p!!.id.toString().toInt())
-                        if (items.size != 0) {
+//                        if (items.size != 0) {
                             var Msg: String = ""
                             for (i in items) {
                                 if (i.situation == PlaceSituation.BOTH) {
@@ -79,6 +81,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                                     Msg += i.name + " "
                                 }
                             }
+
                             if (!p!!.isEnter && geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
 
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -97,9 +100,9 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                                 p.isEnter = false
                                 db.placesDao().update(p)
                             }
-                        }
-                    }
 
+                    }
+                    Log.d("리시버 엔드","리시버 엔드")
 
                 }
 

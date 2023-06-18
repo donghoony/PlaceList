@@ -1,10 +1,12 @@
 package org.konkuk.placelist.place
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.ColumnInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -13,6 +15,8 @@ import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.ActivityPlacesBinding
 import org.konkuk.placelist.domain.Place
 import org.konkuk.placelist.domain.Todo
+import org.konkuk.placelist.domain.enums.PlaceSituation
+import org.konkuk.placelist.domain.enums.TodoPriority
 import org.konkuk.placelist.main.AddPlaceDialogFragment
 import org.konkuk.placelist.main.AddPlaceListener
 
@@ -42,7 +46,23 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
                     // 수정은 여기에서 진행해야 함
                     // DialogFragment으로 Todo 넘겨주기
                     AddTodoDialogFragment.toInstance(data).show(supportFragmentManager, "EditTodo")
+                }
 
+                override fun onItemCheck(data: Todo, pos: Int, isChecked: Boolean) {
+                    Toast.makeText(this@PlacesActivity, isChecked.toString(), Toast.LENGTH_SHORT).show()
+                    val db = PlacesListDatabase.getDatabase(this@PlacesActivity)
+                    //update isCompleted
+                    if(isChecked) {
+                        val updatedTodo = Todo(data.id, data.placeId, data.name, isCompleted = false, data.priority, data.repeatDays, data.situation)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            db.TodoDao().update(updatedTodo)
+                        }
+                    }else {
+                        val updatedTodo = Todo(data.id, data.placeId, data.name, isCompleted = true, data.priority, data.repeatDays, data.situation)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            db.TodoDao().update(updatedTodo)
+                        }
+                    }
                 }
             }
             binding.todolist.adapter = todoAdapter

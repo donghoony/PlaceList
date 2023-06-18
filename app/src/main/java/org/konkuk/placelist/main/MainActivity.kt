@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
@@ -13,11 +14,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,6 +37,9 @@ import org.konkuk.placelist.databinding.ActivityMainBinding
 import org.konkuk.placelist.domain.Place
 import org.konkuk.placelist.place.PlacesActivity
 import org.konkuk.placelist.setting.SettingsActivity
+import org.konkuk.placelist.weather.WeatherAlarmReceiver
+import java.util.*
+import kotlin.collections.ArrayList
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class MainActivity : AppCompatActivity(), AddPlaceListener {
@@ -43,6 +55,8 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         getPermissions()
         initSettings()
         initGeofence()
+        setWeatherAlarm()
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // Force Light Mode
     }
     //geofence 객체 생성, database 삭제 추가 변경시 이 객체에서 ChangeData() 함수 호출해주면 됨
     private fun initGeofence(){
@@ -52,26 +66,74 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         super.onStart()
         if(this::placeAdapter.isInitialized) placeAdapter.refresh()
     }
+
+
     private fun initSettings() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
 
-        if (prefs.getString("notification_hour", "") == "" ||
-            prefs.getString("notification_minute", "") == ""
+        if (prefs.getString("hour", "") == "" ||
+            prefs.getString("minute", "") == ""
         ) {
             prefs.edit()
-                .putString("notification_hour", "6")
-                .putString("notification_minute", "0")
+                .putString("hour", "6")
+                .putString("minute", "0")
                 .apply()
         }
-        val hour = prefs.getString("notification_hour", "6")
-        val minute = prefs.getString("notification_minute", "0")
-        Toast.makeText(this, hour.toString() + ":" + minute.toString(), Toast.LENGTH_SHORT).show()
+//        val hour = prefs.getString("notification_hour", "6")
+//        val minute = prefs.getString("notification_minute", "0")
+//        Toast.makeText(this, hour.toString() + ":" + minute.toString(), Toast.LENGTH_SHORT).show()
+    }
+
+    private fun setWeatherAlarm() {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val alarmOnOff = prefs.getBoolean("weatherAlarm", true)
+
+        val hour = prefs.getString("hour", "6")
+        val minute = prefs.getString("minute", "0")
+
+        val pendingIntent = Intent(this, WeatherAlarmReceiver::class.java).let {
+            it.putExtra("code", 1000)
+            it.putExtra("hour", hour)
+            it.putExtra("minute",minute)
+            PendingIntent.getBroadcast(this, 1000, it, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        }
+        val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if(!alarmManager.canScheduleExactAlarms()) {
+                Intent().also {
+                    it.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
+                    this.startActivity(intent)
+                }
+            }
+        }
+
+        if(alarmOnOff) {
+            val calendar = Calendar.getInstance().apply{
+                timeInMillis = System.currentTimeMillis()
+                set(Calendar.HOUR_OF_DAY, hour!!.toInt())
+                set(Calendar.MINUTE, minute!!.toInt())
+            }
+            //이미 지난 시간 설정한 경우 다음날 같은 시간으로 설정
+            if(calendar.before(Calendar.getInstance())) {
+                calendar.add(Calendar.DATE, 1)
+            }
+            //alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent)
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent
+            )
+            //Toast.makeText(this, "set Alarm on $hour : $minute", Toast.LENGTH_SHORT).show()
+        } else {
+            alarmManager.cancel(pendingIntent)
+            //Toast.makeText(this, "set Alarm off", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun initPlaceView() {
         val db = PlacesListDatabase.getDatabase(this)
         binding.placelist.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+
         CoroutineScope(Dispatchers.IO).launch {
             val items = db.placesDao().getAll() as ArrayList<Place>
             placeAdapter = PlaceAdapter(db, items)
@@ -104,13 +166,24 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                CoroutineScope(Dispatchers.IO).launch{
-                    db.placesDao().delete(placeAdapter.items[viewHolder.adapterPosition])
-                    withContext(Dispatchers.Main) {
-                        placeAdapter.removeItem(viewHolder.adapterPosition)
-                        myGeofence.ChangeData(placeAdapter.items)
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle("장소 삭제")
+                    .setMessage("장소 내 할 일이 모두 삭제됩니다.\n정말 삭제하시겠어요?")
+                    .setPositiveButton("삭제"){_, _ ->
+                        CoroutineScope(Dispatchers.IO).launch{
+                            db.placesDao().delete(placeAdapter.items[viewHolder.adapterPosition])
+                            withContext(Dispatchers.Main) {
+                                placeAdapter.removeItem(viewHolder.adapterPosition)
+                                myGeofence.ChangeData(placeAdapter.items)
+                            }
+                        }
                     }
-                }
+                    .setNegativeButton("취소"){d, _ ->
+                        placeAdapter.refresh()
+                        d.dismiss()
+                    }
+                    .create()
+                    .show()
             }
         }
         val itemTouchHelper = ItemTouchHelper(simpleCallback)
@@ -125,7 +198,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         val permissions = arrayOf(
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
-            android.Manifest.permission.POST_NOTIFICATIONS,
+            android.Manifest.permission.POST_NOTIFICATIONS
         )
 
         fun checkPermission(permission: String) =

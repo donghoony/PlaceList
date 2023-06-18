@@ -3,12 +3,12 @@
     <PreferenceCategory android:title="알림 설정">
         <SwitchPreference
             android:defaultValue="true"
-            android:key="weather"
+            android:key="weatherAlarm"
             android:summary="날씨 알림을 받으려면 체크하세요"
             android:title="날씨 알림" />
         <Preference
-            android:dependency="weather"
-            android:key="weather_notification"
+            android:dependency="weatherAlarm"
+            android:key="weatherTimer"
             android:selectable="true"
             android:summary="날씨 알림을 받을 시간을 설정해 주세요"
             android:title="날씨 알림 시간 설정" />

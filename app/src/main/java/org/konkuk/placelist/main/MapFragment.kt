@@ -114,7 +114,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             mMap.clear()
             marker = mMap.addMarker(markerOptions.position(it))
             mMap.addCircle(circleOptions.center(it).radius(radius))
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, 15.0f))
+            if(mMap.cameraPosition.zoom>=15.0f) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, mMap.cameraPosition.zoom))
+            }else {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, 15.0f))
+            }
         }
 
         mMap.setOnMapClickListener {
@@ -123,7 +127,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             marker = mMap.addMarker(markerOptions.position(it))
             mMap.addCircle(circleOptions.center(it).radius(radius))
             model.setLiveData(it)
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, 15.0f))
+            if(mMap.cameraPosition.zoom>=15.0f) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, mMap.cameraPosition.zoom))
+            }else {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, 15.0f))
+            }
         }
 
         if (ActivityCompat.checkSelfPermission(

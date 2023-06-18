@@ -17,6 +17,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.preference.PreferenceManager
@@ -56,6 +57,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         getPermissions()
         initSettings()
         setWeatherAlarm()
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // Force Light Mode
     }
 
     override fun onStart() {
@@ -162,12 +164,23 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                CoroutineScope(Dispatchers.IO).launch{
-                    db.placesDao().delete(placeAdapter.items[viewHolder.adapterPosition])
-                    withContext(Dispatchers.Main) {
-                        placeAdapter.removeItem(viewHolder.adapterPosition)
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle("장소 삭제")
+                    .setMessage("장소 내 할 일이 모두 삭제됩니다.\n정말 삭제하시겠어요?")
+                    .setPositiveButton("삭제"){_, _ ->
+                        CoroutineScope(Dispatchers.IO).launch{
+                            db.placesDao().delete(placeAdapter.items[viewHolder.adapterPosition])
+                            withContext(Dispatchers.Main) {
+                                placeAdapter.removeItem(viewHolder.adapterPosition)
+                            }
+                        }
                     }
-                }
+                    .setNegativeButton("취소"){d, _ ->
+                        placeAdapter.refresh()
+                        d.dismiss()
+                    }
+                    .create()
+                    .show()
             }
         }
         val itemTouchHelper = ItemTouchHelper(simpleCallback)

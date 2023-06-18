@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
@@ -102,13 +103,19 @@ class AddPlaceDialogFragment : DialogFragment() {
             this.submitBtn.setOnClickListener {
                 var placeId = 0
                 if (place != null) placeId = place!!.id
-                val pos = model.location.value!!
-                addPlaceListener.addPlace(placeId,
-                    binding.placename.text.toString(),
-                    pos.latitude.toString(),
-                    pos.longitude.toString(),
-                    model.detectRange.value!!)
-                dismiss()
+                if(model.location.value!=null) {
+                    val pos = model.location.value!!
+                    addPlaceListener.addPlace(
+                        placeId,
+                        binding.placename.text.toString(),
+                        pos.latitude.toString(),
+                        pos.longitude.toString(),
+                        model.detectRange.value!!
+                    )
+                    dismiss()
+                }else {
+                    Toast.makeText(requireContext(),"장소가 선택되지 않았습니다.", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 

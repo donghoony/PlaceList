@@ -9,4 +9,8 @@
         <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
     </style>
 
+    <style name="MyTimePicker" parent="@android:style/Widget.Holo.TimePicker">
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
 </resources>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:theme="@style/ThemeOverlay.PlaceList.FullscreenContainer"
         android:layout_width="match_parent"
@@ -7,38 +7,29 @@
         android:background="?attr/fullscreenBackgroundColor"
         tools:context=".intro.IntroActivity">
 
-    <!-- The primary full-screen view. This can be replaced with whatever view
-         is needed to present your content, e.g. VideoView, SurfaceView,
-         TextureView, etc. -->
-    <TextView
-            android:id="@+id/fullscreen_content"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textColor="@color/colorPrimary"
-            android:keepScreenOn="true"
-            android:fontFamily="@font/nanumsquareroundb"
-            android:textSize="40dp"
-            android:gravity="center"
-            android:text="Placelist" />
 
-    <!-- This FrameLayout insets its children based on system windows using
-         android:fitsSystemWindows. -->
-    <FrameLayout
-            android:layout_width="match_parent"
+    <RelativeLayout
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:fitsSystemWindows="true">
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true">
 
-        <LinearLayout
-                android:id="@+id/fullscreen_content_controls"
-                style="@style/Widget.Theme.PlaceList.ButtonBar.Fullscreen"
-                android:layout_width="match_parent"
+        <ImageView
+                android:src="@drawable/img_p_vector"
+                android:id="@+id/flag"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center_horizontal"
-                android:orientation="horizontal"
-                tools:ignore="UselessParent">
+                android:layout_centerVertical="true"
+                />
 
+        <ImageView
+                android:id="@+id/logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/img_lacelist"
+                android:layout_toEndOf="@+id/flag"
+                android:layout_alignBottom="@+id/flag"/>
 
-        </LinearLayout>
-    </FrameLayout>
+    </RelativeLayout>
 
-</FrameLayout>
+</RelativeLayout>

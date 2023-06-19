@@ -1,6 +1,8 @@
 package org.konkuk.placelist.place
 
+import android.os.Build
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +18,7 @@ import org.konkuk.placelist.domain.Todo
 import org.konkuk.placelist.main.AddPlaceDialogFragment
 import org.konkuk.placelist.main.AddPlaceListener
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
     lateinit var binding: ActivityPlacesBinding
     lateinit var place : Place
@@ -42,7 +45,15 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
                     // 수정은 여기에서 진행해야 함
                     // DialogFragment으로 Todo 넘겨주기
                     AddTodoDialogFragment.toInstance(data).show(supportFragmentManager, "EditTodo")
+                }
 
+                override fun onItemCheck(data: Todo, pos: Int, isChecked: Boolean) {
+                    val db = PlacesListDatabase.getDatabase(this@PlacesActivity)
+                    //update isCompleted
+                    val updatedTodo = Todo(data.id, data.placeId, data.name, isCompleted = !isChecked, data.priority, data.repeatDays, data.situation)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        db.TodoDao().update(updatedTodo)
+                    }
                 }
             }
             binding.todolist.adapter = todoAdapter

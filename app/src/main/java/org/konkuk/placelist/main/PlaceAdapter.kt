@@ -3,6 +3,7 @@ package org.konkuk.placelist.main
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,11 +55,11 @@ class PlaceAdapter(private val db: PlacesListDatabase, var items : ArrayList<Pla
         }
     }
 
-    fun addPlace(id : Int, name: String, latitude: String, longitude: String, radius: Float, myGeofence: MyGeofence) {
+    fun addPlace(id: Long, name: String, latitude: String, longitude: String, radius: Float, myGeofence: MyGeofence) {
         CoroutineScope(Dispatchers.IO).launch{
-            db.placesDao().insertAll(Place(0, name, latitude, longitude, radius))
+            val insertedId = db.placesDao().insert(Place(0, name, latitude, longitude, radius))
             items = db.placesDao().getAll() as ArrayList<Place>
-            myGeofence.ChangeData(items)
+            myGeofence.addGeofence(insertedId, LatLng(latitude.toDouble(), longitude.toDouble()), radius)
             withContext(Dispatchers.Main){
                 notifyItemInserted(items.size)
             }

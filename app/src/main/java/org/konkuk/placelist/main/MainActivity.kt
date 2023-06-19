@@ -1,6 +1,5 @@
 package org.konkuk.placelist.main
 
-import android.Manifest
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -9,9 +8,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Looper
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -19,17 +16,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,7 +32,6 @@ import org.konkuk.placelist.place.PlacesActivity
 import org.konkuk.placelist.setting.SettingsActivity
 import org.konkuk.placelist.weather.WeatherAlarmReceiver
 import java.util.*
-import kotlin.collections.ArrayList
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class MainActivity : AppCompatActivity(), AddPlaceListener {
@@ -175,9 +164,9 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
                     .setPositiveButton("삭제"){_, _ ->
                         CoroutineScope(Dispatchers.IO).launch{
                             db.placesDao().delete(placeAdapter.items[viewHolder.adapterPosition])
+                            myGeofence.removeGeofence(placeAdapter.items[viewHolder.adapterPosition].id)
                             withContext(Dispatchers.Main) {
                                 placeAdapter.removeItem(viewHolder.adapterPosition)
-                                myGeofence.ChangeData(placeAdapter.items)
                             }
                         }
                     }
@@ -263,7 +252,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         }
     }
 
-    override fun addPlace(id: Int, name: String, latitude: String, longitude: String, radius: Float) {
-        placeAdapter.addPlace(0, name, latitude, longitude, radius,myGeofence)
+    override fun addPlace(id: Long, name: String, latitude: String, longitude: String, radius: Float) {
+        placeAdapter.addPlace(id, name, latitude, longitude, radius, myGeofence)
     }
 }

@@ -115,9 +115,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             marker = mMap.addMarker(markerOptions.position(it))
             mMap.addCircle(circleOptions.center(it).radius(radius))
             if(mMap.cameraPosition.zoom>=15.0f) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, mMap.cameraPosition.zoom))
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, mMap.cameraPosition.zoom))
             }else {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, 15.0f))
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, 15.0f))
             }
         }
 
@@ -128,9 +128,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             mMap.addCircle(circleOptions.center(it).radius(radius))
             model.setLiveData(it)
             if(mMap.cameraPosition.zoom>=15.0f) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, mMap.cameraPosition.zoom))
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, mMap.cameraPosition.zoom))
             }else {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, 15.0f))
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker!!.position, 15.0f))
             }
         }
 

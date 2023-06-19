@@ -1,19 +1,16 @@
 package org.konkuk.placelist.place
 
+import android.graphics.Paint
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckedTextView
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.konkuk.placelist.PlacesListDatabase
-import org.konkuk.placelist.databinding.PlacesRowBinding
 import org.konkuk.placelist.databinding.TodoRowBinding
 import org.konkuk.placelist.domain.Todo
-import org.konkuk.placelist.domain.enums.TodoPriority
 
 class TodoAdapter(private val db: PlacesListDatabase, var items : ArrayList<Todo>, private val placeId: Int) : RecyclerView.Adapter<TodoAdapter.ViewHolder>(){
 
@@ -30,6 +27,7 @@ class TodoAdapter(private val db: PlacesListDatabase, var items : ArrayList<Todo
             binding.todoCheck.setOnClickListener {
                 itemClickListener?.onItemCheck(items[adapterPosition], adapterPosition, binding.todoCheck.isChecked)
                 binding.todoCheck.isChecked = !binding.todoCheck.isChecked
+                binding.todoCheck.paintFlags = if (binding.todoCheck.isChecked) Paint.STRIKE_THRU_TEXT_FLAG else 0
             }
         }
     }
@@ -60,6 +58,8 @@ class TodoAdapter(private val db: PlacesListDatabase, var items : ArrayList<Todo
         with(holder.binding){
             val todo = items[position]
             this.todoCheck.text = todo.name
+            this.todoCheck.isChecked = todo.isCompleted
+            this.todoCheck.paintFlags = if (todo.isCompleted) Paint.STRIKE_THRU_TEXT_FLAG else 0
         }
     }
 

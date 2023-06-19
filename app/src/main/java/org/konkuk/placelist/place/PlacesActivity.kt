@@ -1,12 +1,12 @@
 package org.konkuk.placelist.place
 
+import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.ColumnInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,11 +15,10 @@ import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.ActivityPlacesBinding
 import org.konkuk.placelist.domain.Place
 import org.konkuk.placelist.domain.Todo
-import org.konkuk.placelist.domain.enums.PlaceSituation
-import org.konkuk.placelist.domain.enums.TodoPriority
 import org.konkuk.placelist.main.AddPlaceDialogFragment
 import org.konkuk.placelist.main.AddPlaceListener
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
     lateinit var binding: ActivityPlacesBinding
     lateinit var place : Place
@@ -51,16 +50,9 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
                 override fun onItemCheck(data: Todo, pos: Int, isChecked: Boolean) {
                     val db = PlacesListDatabase.getDatabase(this@PlacesActivity)
                     //update isCompleted
-                    if(isChecked) {
-                        val updatedTodo = Todo(data.id, data.placeId, data.name, isCompleted = false, data.priority, data.repeatDays, data.situation)
-                        CoroutineScope(Dispatchers.IO).launch {
-                            db.TodoDao().update(updatedTodo)
-                        }
-                    }else {
-                        val updatedTodo = Todo(data.id, data.placeId, data.name, isCompleted = true, data.priority, data.repeatDays, data.situation)
-                        CoroutineScope(Dispatchers.IO).launch {
-                            db.TodoDao().update(updatedTodo)
-                        }
+                    val updatedTodo = Todo(data.id, data.placeId, data.name, isCompleted = !isChecked, data.priority, data.repeatDays, data.situation)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        db.TodoDao().update(updatedTodo)
                     }
                 }
             }

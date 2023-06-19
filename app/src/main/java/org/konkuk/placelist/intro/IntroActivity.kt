@@ -27,7 +27,7 @@ class IntroActivity : AppCompatActivity() {
         binding = ActivityIntroBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val backgroundImg : ImageView = findViewById(R.id.img_p)
+        val backgroundImg : ImageView = findViewById(R.id.flag)
         val sideAnimation = AnimationUtils.loadAnimation(this, R.anim.splash_translate)
         backgroundImg.startAnimation(sideAnimation)
 
@@ -37,6 +37,6 @@ class IntroActivity : AppCompatActivity() {
                 startActivity(intent)
                 finish()
             }
-        }, 3000)
+        }, 2000)
     }
 }

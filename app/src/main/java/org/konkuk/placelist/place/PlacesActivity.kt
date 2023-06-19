@@ -1,5 +1,10 @@
 package org.konkuk.placelist.place
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
@@ -7,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors.ALPHA_FULL
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,6 +23,7 @@ import org.konkuk.placelist.domain.Place
 import org.konkuk.placelist.domain.Todo
 import org.konkuk.placelist.main.AddPlaceDialogFragment
 import org.konkuk.placelist.main.AddPlaceListener
+import kotlin.math.abs
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
@@ -58,15 +65,27 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
             }
             binding.todolist.adapter = todoAdapter
         }
-        val simpleCallback = object : ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT
-        ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                TODO("Not yet implemented")
+        val simpleCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {return true}
+            override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    val itemView = viewHolder.itemView
+                    val p = Paint()
+                    var icon: Bitmap
+                    if (dX < 0) {
+                        icon = BitmapFactory.decodeResource(resources, org.konkuk.placelist.R.drawable.btn_trash_1)
+                        val h = abs((itemView.top - itemView.bottom) * 2 / 3)
+                        val w = h*2/3
+                        icon = Bitmap.createScaledBitmap(icon, w, h, false)
+                        p.color = Color.parseColor("#FF5959")
+                        c.drawRoundRect(itemView.right.toFloat()-20 + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat()-10, 10f, 10f, p)
+                        c.drawBitmap(icon, itemView.right.toFloat() - w - 20, itemView.top.toFloat() + (itemView.bottom.toFloat() - itemView.top.toFloat() - h  + 10) / 2, p)
+                    }
+                    val alpha = ALPHA_FULL - abs(dX) / viewHolder.itemView.width.toFloat()
+                    viewHolder.itemView.alpha = alpha
+                    viewHolder.itemView.translationX = dX
+                }
+                else super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {

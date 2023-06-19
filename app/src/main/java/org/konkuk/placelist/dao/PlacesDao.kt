@@ -12,7 +12,7 @@ import org.konkuk.placelist.domain.Place
 interface PlacesDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(vararg places: Place)
+    fun insert(place: Place): Long
 
     @Query("select * from places")
     fun getAll(): List<Place>
@@ -24,5 +24,5 @@ interface PlacesDao {
     fun delete(place: Place)
 
     @Query("select * from places p where p.place_id = :placeId")
-    fun findPlaceByPlaceId(placeId: Int): Place
+    fun findByPlaceId(placeId: Long): Place?
 }

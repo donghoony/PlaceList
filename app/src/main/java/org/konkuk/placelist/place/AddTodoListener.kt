@@ -4,5 +4,5 @@ import org.konkuk.placelist.domain.Todo
 
 interface AddTodoListener {
     fun update(todo: Todo)
-    fun getTodosPlaceId(): Int
+    fun getTodosPlaceId(): Long
 }

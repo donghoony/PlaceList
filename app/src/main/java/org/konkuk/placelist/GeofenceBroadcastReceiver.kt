@@ -89,8 +89,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                             }
 
                         }
-                        createNotificationChannel(context!!)
-                        showNotification(context!!, p.name + " " + transitionMsg, Msg)
+
                         if (!p!!.isEnter && geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
 
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

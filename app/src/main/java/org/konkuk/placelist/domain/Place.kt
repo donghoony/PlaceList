@@ -7,10 +7,9 @@ import java.io.Serializable
 
 @Entity(tableName = "places")
 data class Place(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "place_id") val id: Int,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "place_id") val id: Long,
     var name: String,
     var latitude: String,
     var longitude: String,
     var detectRange: Float,
-    var isEnter: Boolean=false
     ) : Serializable

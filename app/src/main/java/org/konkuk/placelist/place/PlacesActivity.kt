@@ -1,12 +1,11 @@
 package org.konkuk.placelist.place
 
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,11 +22,11 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
     lateinit var binding: ActivityPlacesBinding
     lateinit var place : Place
     lateinit var todoAdapter: TodoAdapter
-    lateinit var  geo: MyGeofence
+    lateinit var geo: MyGeofence
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPlacesBinding.inflate(layoutInflater)
-        geo= MyGeofence.getInstance()
+        geo = MyGeofence.getInstance()
         place = intent.getSerializableExtra("place", Place::class.java)!!
         binding.name.text = place.name
         setContentView(binding.root)
@@ -39,7 +38,7 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
         binding.todolist.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         CoroutineScope(Dispatchers.IO).launch{
-            val items = db.TodoDao().findTodoByPlaceId(place.id) as ArrayList<Todo>
+            val items = db.TodoDao().findByPlaceId(place.id) as ArrayList<Todo>
             todoAdapter = TodoAdapter(db, items, place.id)
             todoAdapter.itemClickListener = object : TodoAdapter.OnItemClickListener {
                 override fun onItemClick(data: Todo, pos: Int) {
@@ -51,6 +50,7 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
             }
             binding.todolist.adapter = todoAdapter
         }
+
         val simpleCallback = object : ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT
         ) {
@@ -87,20 +87,22 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
     }
 
     override fun update(todo: Todo) {
-        todoAdapter.addTodo(todo,geo)
+        todoAdapter.addTodo(todo)
     }
 
-    override fun getTodosPlaceId(): Int {
+    override fun getTodosPlaceId(): Long {
         return place.id
     }
 
-    override fun addPlace(id: Int, name: String, latitude: String, longitude: String, radius: Float) {
+    override fun addPlace(id: Long, name: String, latitude: String, longitude: String, radius: Float) {
         // editPlace
         val db = PlacesListDatabase.getDatabase(this)
         val updatedPlace = Place(id, name, latitude, longitude, radius)
         CoroutineScope(Dispatchers.IO).launch {
             db.placesDao().update(updatedPlace)
         }
+        geo.removeGeofence(id)
+        geo.addGeofence(id, LatLng(latitude.toDouble(), longitude.toDouble()), radius)
         this@PlacesActivity.place = updatedPlace
         binding.name.text = name
     }

@@ -86,7 +86,7 @@ class AddTodoDialogFragment : DialogFragment() {
                     repeatValue = repeatValue or (1 shl i)
                 }
                 // 일요일부터 2진수로 7개 (가장 오른쪽이 일요일) -> 1111111(2) : 모두 반복, 0000001 : 토요일만 반복
-                var todoId = 0
+                var todoId = 0L
                 if (todo != null) todoId = todo!!.id
                 addTodoListener.update(Todo(todoId, addTodoListener.getTodosPlaceId(), todoname.text.toString(), false, TodoPriority.MEDIUM, repeatValue, placeSituation))
                 dismiss()

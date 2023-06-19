@@ -101,9 +101,8 @@ class AddPlaceDialogFragment : DialogFragment() {
                 dismiss()
             }
             this.submitBtn.setOnClickListener {
-                var placeId = 0
-                if (place != null) placeId = place!!.id
-                if(model.location.value!=null) {
+                val placeId = if (place != null) place!!.id else 0
+                if(model.location.value != null) {
                     val pos = model.location.value!!
                     addPlaceListener.addPlace(
                         placeId,

@@ -23,7 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.konkuk.placelist.domain.enums.PlaceSituation
 import org.konkuk.placelist.main.MainActivity
-import java.util.*
+import java.util.Calendar
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
     private val CHANNEL_ID = "my_channel_id"
@@ -105,7 +105,8 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         )
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.img_p_vector)
+            .setSmallIcon(R.drawable.logo_placelist_vector)
+            .setColor(context.resources.getColor(R.color.red, null))
             .setContentTitle(title)
             .setContentText(msg)
             .setContentIntent(pendingIntent)

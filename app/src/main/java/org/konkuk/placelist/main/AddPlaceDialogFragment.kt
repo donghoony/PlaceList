@@ -135,7 +135,8 @@ class AddPlaceDialogFragment : DialogFragment() {
                 }
                 else{
                     val address = geocoder.getFromLocationName(binding.location.text.toString(), 1)
-                    if (address != null) model.setLiveData(LatLng(address[0].latitude, address[0].longitude))
+                    if (address?.size != 0) model.setLiveData(LatLng(address!![0].latitude, address!![0].longitude))
+                    else Toast.makeText(requireContext(),"주소를 다시 확인해 주세요.", Toast.LENGTH_SHORT).show()
                 }
             }
             false

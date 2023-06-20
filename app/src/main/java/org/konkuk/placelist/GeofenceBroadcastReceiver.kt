@@ -2,6 +2,7 @@ package org.konkuk.placelist
 
 
 import android.Manifest
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -9,7 +10,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
+import android.graphics.Color
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -26,8 +27,8 @@ import org.konkuk.placelist.main.MainActivity
 import java.util.Calendar
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
-    private val CHANNEL_ID = "my_channel_id"
-    private var notificationIdCounter = 0
+    private val CHANNEL_ID = "todo_channel"
+    private var notificationIdCounter = 1 // Weather : 0
 
     private fun checkTrigger(desiredSituation: PlaceSituation, transition: Int) : Boolean{
         if (desiredSituation == PlaceSituation.BOTH &&
@@ -47,8 +48,8 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
         val triggeringGeofences = geofencingEvent.triggeringGeofences!!
         val transitionMsg = when (geofenceTransition) {
-            GEOFENCE_TRANSITION_ENTER -> "Enter"
-            GEOFENCE_TRANSITION_EXIT -> "Exit"
+            GEOFENCE_TRANSITION_ENTER -> "에 들어왔어요!"
+            GEOFENCE_TRANSITION_EXIT -> "에서 나갔어요!"
             else -> "DWELL"
         }
 
@@ -67,34 +68,35 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                     if (todo.isCompleted) continue
                     if (!checkTrigger(todo.situation, geofenceTransition)) continue
                     if ((todo.repeatDays and (1 shl (dayOfWeek - 1)) != 0) || todo.repeatDays == 0) {
-                        notificationMessage += todo.name + " "
+                        notificationMessage += todo.name + "\n"
                     }
                 }
                 createNotificationChannel(context)
                 if (notificationMessage.isNotBlank())
-                    showNotification(context, place.name + " " + transitionMsg, notificationMessage)
+                    showNotification(context, place.name + transitionMsg + " 잊으신 일은 없으신가요?", notificationMessage.trimEnd())
             }
         }
     }
 
     private fun createNotificationChannel(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelName = "My Channel"
-            val channelDescription = "My Channel Description"
-            val channelImportance = NotificationManager.IMPORTANCE_DEFAULT
+        val channelName = "할 일 알림"
+        val channelDescription = "장소를 들어오고 나갈 때 알림을 보냅니다."
+        val channelImportance = NotificationManager.IMPORTANCE_DEFAULT
 
-            val notificationChannel =
-                NotificationChannel(CHANNEL_ID, channelName, channelImportance)
-            notificationChannel.description = channelDescription
+        val notificationChannel =
+            NotificationChannel(CHANNEL_ID, channelName, channelImportance).apply {
+                enableLights(true)
+                lightColor = Color.BLUE
+                lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+            }
+        notificationChannel.description = channelDescription
 
-            val notificationManager = context.getSystemService(NotificationManager::class.java)
-            notificationManager.createNotificationChannel(notificationChannel)
-        }
+        val notificationManager = context.getSystemService(NotificationManager::class.java)
+        notificationManager.createNotificationChannel(notificationChannel)
     }
 
     private fun showNotification(context: Context, title: String, msg: String) {
         val notificationId = notificationIdCounter++
-
         val intent = Intent(context, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val pendingIntent = PendingIntent.getActivity(

@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.os.Build
 import android.os.Looper
 import android.os.SystemClock
 import android.util.Log
@@ -210,73 +209,73 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
     }
 
     private fun makeNotification(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelId = "날씨 알림"
-            val channelName = "PlaceList"
-            val notificationChannel =
-                NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
-                    .apply {
-                        enableLights(true)
-                        lightColor = Color.BLUE
-                        lockscreenVisibility = Notification.VISIBILITY_PRIVATE
-                    }
+        val channelId = "weather_channel"
+        val channelName = "날씨 알림"
+        val notificationChannel =
+            NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
+                .apply {
+                    enableLights(true)
+                    lightColor = Color.BLUE
+                    lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+                    description = "정해진 시각에 날씨 관련 정보 알림을 보냅니다."
+                }
 
-            val intent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-            val pendingIntent: PendingIntent = PendingIntent.getActivity(
-                context,
-                1000,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(
+            context,
+            1000,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notificationBuilder = NotificationCompat.Builder(context, channelId)
+            .setContentTitle("${getDate().substring(4, 6)}월 ${getDate().substring(6, 8)}일 날씨 알림")
+            .setContentText("$stationName 예보 확인하기")
+            .setSmallIcon(R.drawable.img_p)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(getWeatherForecastMsg())
             )
-
-            val notificationBuilder = NotificationCompat.Builder(context, channelId)
-                .setContentTitle("날씨 알림")
-                .setContentText("$stationName 예보 확인하기")
-                .setSmallIcon(R.drawable.logo_placelist_vector)
-                .setColor(context.resources.getColor(R.color.red, null))
-                .setAutoCancel(true)
-                .setContentIntent(pendingIntent)
-                .setStyle(
-                    NotificationCompat.BigTextStyle()
-                        .bigText(getWeatherForecastMsg())
-                )
-            val notification = notificationBuilder.build()
-            val notificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.apply {
-                createNotificationChannel(notificationChannel)
-                notify(0, notification)
-            }
+        val notification = notificationBuilder.build()
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.apply {
+            createNotificationChannel(notificationChannel)
+            notify(0, notification)
         }
     }
 
     private fun getWeatherForecastMsg(): CharSequence? {
         var msg = ""
-        weatherForecasts?.forEach {
-            //PTY: 강수정보
-            if (it?.category == "PTY") {
-                when (it?.fcstValue) {
-                    "1" -> {
-                        msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "비")
-                        pFlag = true
-                        return@forEach
-                    }
-                    "2" -> {
-                        msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "비/눈")
-                        pFlag = true
-                        return@forEach
-                    }
-                    "3" -> {
-                        msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "눈")
-                        pFlag = true
-                        return@forEach
-                    }
-                    "4" -> {
-                        msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "소나기")
-                        pFlag = true
-                        return@forEach
+        run breaker@{
+            weatherForecasts?.forEach {
+                //PTY: 강수정보
+                if (it?.category == "PTY") {
+                    when (it?.fcstValue) {
+                        "1" -> {
+                            msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "비")
+                            pFlag = true
+                            return@breaker
+                        }
+                        "2" -> {
+                            msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "비/눈")
+                            pFlag = true
+                            return@breaker
+                        }
+                        "3" -> {
+                            msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "눈")
+                            pFlag = true
+                            return@breaker
+                        }
+                        "4" -> {
+                            msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "소나기")
+                            pFlag = true
+                            return@breaker
+                        }
                     }
                 }
             }
@@ -284,7 +283,7 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         if(!pFlag) msg += "24시간 이내 강수 예보 없음\n"
         msg += "오존 등급: ${measuredValue?.o3Grade.toString()}\n" +
                 "미세먼지 등급: ${measuredValue?.pm10Grade.toString()}\n" +
-                "초미세먼지 등급: ${measuredValue?.pm10Grade.toString()}\n"
+                "초미세먼지 등급: ${measuredValue?.pm10Grade.toString()}"
         return msg
     }
 
@@ -294,7 +293,9 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         } else {
             "내일"
         }
-        return "$today ${fcstTime}시에 $pty 예보가 있어요."
+        var time = fcstTime
+        time = time?.substring(0,2)
+        return "$today ${time}시에 $pty 예보가 있어요.\n"
     }
 
     private fun getDate(): String {

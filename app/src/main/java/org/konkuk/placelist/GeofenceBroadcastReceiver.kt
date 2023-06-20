@@ -82,7 +82,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
     private fun createNotificationChannel(context: Context) {
         val channelName = "할 일 알림"
         val channelDescription = "장소를 들어오고 나갈 때 알림을 보냅니다."
-        val channelImportance = NotificationManager.IMPORTANCE_DEFAULT
+        val channelImportance = NotificationManager.IMPORTANCE_HIGH
 
         val notificationChannel =
             NotificationChannel(CHANNEL_ID, channelName, channelImportance).apply {
@@ -114,7 +114,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             .setContentTitle(title)
             .setContentText(msg)
             .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
 
         val notificationManager = NotificationManagerCompat.from(context)

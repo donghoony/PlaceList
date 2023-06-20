@@ -231,7 +231,7 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         val channelId = "weather_channel"
         val channelName = "날씨 알림"
         val notificationChannel =
-            NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
+            NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH)
                 .apply {
                     enableLights(true)
                     lightColor = Color.BLUE
@@ -256,6 +256,7 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
             .setColor(context.resources.getColor(R.color.red, null))
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setStyle(
                 NotificationCompat.InboxStyle()
                     .addLine(msgs[0])
@@ -269,6 +270,7 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         notificationManager.apply {
             createNotificationChannel(notificationChannel)
             notify(0, notification)
+
         }
     }
 

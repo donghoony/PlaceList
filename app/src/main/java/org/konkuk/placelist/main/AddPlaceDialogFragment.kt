@@ -2,7 +2,6 @@ package org.konkuk.placelist.main
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
 import android.location.Geocoder
 import android.os.Build
@@ -16,7 +15,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.SeekBar
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.gms.maps.model.LatLng
@@ -26,8 +24,6 @@ import org.konkuk.placelist.domain.Place
 import java.util.Locale
 import android.os.Bundle as Bundle1
 
-
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class AddPlaceDialogFragment : DialogFragment() {
     lateinit var binding: FragmentAddPlaceBinding
     lateinit var addPlaceListener: AddPlaceListener
@@ -64,7 +60,9 @@ class AddPlaceDialogFragment : DialogFragment() {
             binding.mapFragment.tag = "EditPlace"
         }
         if (arguments != null){
-            place = arguments?.getSerializable("place", Place::class.java)!!
+            place = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                arguments?.getSerializable("place", Place::class.java)!!
+            else arguments?.getSerializable("place") as Place
             binding.placename.setText(place?.name.toString())
             binding.radiusSeekbar.progress = when(place?.detectRange){
                 100f -> 0
@@ -124,9 +122,15 @@ class AddPlaceDialogFragment : DialogFragment() {
 
         binding.location.setOnKeyListener { v, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KEYCODE_ENTER) {
-                geocoder.getFromLocationName(binding.location.text.toString(), 1){ addresses ->
-                    Log.i("M", "${addresses[0].latitude}, ${addresses[0].longitude}")
-                    model.setLiveData(LatLng(addresses[0].latitude, addresses[0].longitude))
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    geocoder.getFromLocationName(binding.location.text.toString(), 1){ addresses ->
+                        Log.i("M", "${addresses[0].latitude}, ${addresses[0].longitude}")
+                        model.setLiveData(LatLng(addresses[0].latitude, addresses[0].longitude))
+                    }
+                }
+                else{
+                    val address = geocoder.getFromLocationName(binding.location.text.toString(), 1)
+                    if (address != null) model.setLiveData(LatLng(address[0].latitude, address[0].longitude))
                 }
             }
             false
@@ -141,21 +145,11 @@ class AddPlaceDialogFragment : DialogFragment() {
     }
     private fun Context.dialogFragmentResize(w: Float, h: Float) {
         val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        if (Build.VERSION.SDK_INT < 30) {
-            val display = windowManager.defaultDisplay
-            val size = Point()
-            display.getSize(size)
-            val window = dialog?.window
-            val x = (size.x * w).toInt()
-            val y = (size.y * h).toInt()
-            window?.setLayout(x, y)
-        } else {
-            val rect = windowManager.currentWindowMetrics.bounds
-            val window = dialog?.window
-            val x = (rect.width() * w).toInt()
-            val y = (rect.height() * h).toInt()
-            window?.setLayout(x, y)
-        }
+        val rect = windowManager.currentWindowMetrics.bounds
+        val window = dialog?.window
+        val x = (rect.width() * w).toInt()
+        val y = (rect.height() * h).toInt()
+        window?.setLayout(x, y)
     }
 
     companion object{

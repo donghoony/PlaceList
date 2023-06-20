@@ -41,8 +41,8 @@
             android:maxWidth="60dp"
             android:maxHeight="60dp"
             android:layout_weight="1"
-            app:tint="@color/gray3"
-            app:srcCompat="@drawable/baseline_settings_24"/>
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/btn_settings" />
 
     </LinearLayout>
 

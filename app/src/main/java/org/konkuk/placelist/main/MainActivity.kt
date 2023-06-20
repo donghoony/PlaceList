@@ -5,13 +5,17 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -20,6 +24,7 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,8 +37,9 @@ import org.konkuk.placelist.place.PlacesActivity
 import org.konkuk.placelist.setting.SettingsActivity
 import org.konkuk.placelist.weather.WeatherAlarmReceiver
 import java.util.*
+import java.util.Calendar
+import kotlin.math.abs
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class MainActivity : AppCompatActivity(), AddPlaceListener {
     lateinit var binding: ActivityMainBinding
     lateinit var placeAdapter: PlaceAdapter
@@ -71,9 +77,6 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
                 .putString("minute", "0")
                 .apply()
         }
-//        val hour = prefs.getString("notification_hour", "6")
-//        val minute = prefs.getString("notification_minute", "0")
-//        Toast.makeText(this, hour.toString() + ":" + minute.toString(), Toast.LENGTH_SHORT).show()
     }
 
     private fun setWeatherAlarm() {
@@ -91,12 +94,10 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         }
         val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if(!alarmManager.canScheduleExactAlarms()) {
-                Intent().also {
-                    it.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
-                    this.startActivity(intent)
-                }
+        if(!alarmManager.canScheduleExactAlarms()) {
+            Intent().also {
+                it.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
+                this.startActivity(intent)
             }
         }
 
@@ -110,14 +111,11 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
             if(calendar.before(Calendar.getInstance())) {
                 calendar.add(Calendar.DATE, 1)
             }
-            //alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent)
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent
             )
-            //Toast.makeText(this, "set Alarm on $hour : $minute", Toast.LENGTH_SHORT).show()
         } else {
             alarmManager.cancel(pendingIntent)
-            //Toast.makeText(this, "set Alarm off", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -131,12 +129,6 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
             placeAdapter = PlaceAdapter(db, items)
             placeAdapter.itemClickListener = object : PlaceAdapter.OnItemClickListener {
                 override fun onItemClick(data: Place, pos: Int) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "${data.name} : ${data.latitude}, ${data.longitude}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
                     val intent = Intent(this@MainActivity, PlacesActivity::class.java)
                     intent.putExtra("place", data)
                     startActivity(intent)
@@ -146,15 +138,27 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
                 binding.placelist.adapter = placeAdapter
             }
         }
-        val simpleCallback = object : ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT
-        ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                TODO("Not yet implemented")
+        val simpleCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {return true}
+            override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    val itemView = viewHolder.itemView
+                    val p = Paint()
+                    var icon: Bitmap
+                    if (dX < 0) {
+                        icon = BitmapFactory.decodeResource(resources, org.konkuk.placelist.R.drawable.btn_trash_1)
+                        val h = abs((itemView.top - itemView.bottom) * 2 / 3)
+                        val w = h*2/3
+                        icon = Bitmap.createScaledBitmap(icon, w, h, false)
+                        p.color = Color.parseColor("#FF5959")
+                        c.drawRoundRect(itemView.right.toFloat()-20 + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat()-10, 10f, 10f, p)
+                        c.drawBitmap(icon, itemView.right.toFloat() - w - 20, itemView.top.toFloat() + (itemView.bottom.toFloat() - itemView.top.toFloat() - h  + 10) / 2, p)
+                    }
+                    val alpha = MaterialColors.ALPHA_FULL - abs(dX) / viewHolder.itemView.width.toFloat()
+                    viewHolder.itemView.alpha = alpha
+                    viewHolder.itemView.translationX = dX
+                }
+                else super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
@@ -187,11 +191,18 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         lateinit var dialog: AlertDialog
         lateinit var backgroundDialog: AlertDialog
 
-        val permissions = arrayOf(
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION,
-            android.Manifest.permission.POST_NOTIFICATIONS
-        )
+        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            )
+        } else {
+            arrayOf(
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        }
 
         fun checkPermission(permission: String) =
             ActivityCompat.checkSelfPermission(

@@ -46,6 +46,7 @@ class AddTodoDialogFragment : DialogFragment() {
                 arguments?.getSerializable("todo", Todo::class.java)!!
             else arguments?.getSerializable("todo") as Todo
             binding.todoname.setText(todo?.name)
+            binding.repeatSwitch.isChecked = todo?.repeatDays != 0
             binding.outToggleBtn.isChecked = (todo?.situation == PlaceSituation.BOTH) or (todo?.situation == PlaceSituation.ESCAPE)
             binding.inToggleButton.isChecked = (todo?.situation == PlaceSituation.BOTH) or (todo?.situation == PlaceSituation.ENTER)
             val array = arrayOf(binding.sun, binding.mon, binding.tue, binding.wed, binding.thu, binding.fri, binding.sat)

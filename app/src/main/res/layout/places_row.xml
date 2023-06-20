@@ -13,7 +13,7 @@
         android:background="@drawable/textstyle"
         android:paddingVertical="20dp"
         android:paddingHorizontal="20dp"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textColor="@color/gray3"
         android:fontFamily="@font/nanumsquareroundb" />
 

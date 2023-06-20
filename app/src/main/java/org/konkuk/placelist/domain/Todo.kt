@@ -17,8 +17,8 @@ import java.io.Serializable
 )
 
 data class Todo(
-    @PrimaryKey(autoGenerate = true) var id: Int,
-    @ColumnInfo(name = "place_id") var placeId: Int,
+    @PrimaryKey(autoGenerate = true) var id: Long,
+    @ColumnInfo(name = "place_id") var placeId: Long,
     var name: String,
     var isCompleted: Boolean = false,
 

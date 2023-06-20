@@ -12,7 +12,7 @@ import org.konkuk.placelist.domain.Todo
 interface TodoDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(vararg todos: Todo)
+    fun insert(todo: Todo) : Long
 
     @Delete
     fun delete(todo: Todo)
@@ -21,6 +21,6 @@ interface TodoDao {
     fun update(todo: Todo)
 
     @Query("select t.* from todos t inner join places p on t.place_id = p.place_id where t.place_id = :placeId")
-    fun findTodoByPlaceId(placeId: Int): List<Todo>
+    fun findByPlaceId(placeId: Long): List<Todo>
 
 }

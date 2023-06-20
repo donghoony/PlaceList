@@ -229,7 +229,7 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-
+        val msgs = getWeatherForecastMsg()
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
             .setContentTitle("${getDate().substring(4, 6)}월 ${getDate().substring(6, 8)}일 날씨 알림")
             .setContentText("$stationName 예보 확인하기")
@@ -237,8 +237,11 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(getWeatherForecastMsg())
+                NotificationCompat.InboxStyle()
+                    .addLine(msgs[0])
+                    .addLine(msgs[1])
+                    .addLine(msgs[2])
+                    .addLine(msgs[3])
             )
         val notification = notificationBuilder.build()
         val notificationManager =
@@ -249,30 +252,30 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun getWeatherForecastMsg(): CharSequence? {
-        var msg = ""
+    private fun getWeatherForecastMsg(): Array<String> {
+        var msg0 = ""
         run breaker@{
             weatherForecasts?.forEach {
                 //PTY: 강수정보
                 if (it?.category == "PTY") {
                     when (it?.fcstValue) {
                         "1" -> {
-                            msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "비")
+                            msg0 = getPtyMsg(it?.fcstDate, it?.fcstTime, "비")
                             pFlag = true
                             return@breaker
                         }
                         "2" -> {
-                            msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "비/눈")
+                            msg0 = getPtyMsg(it?.fcstDate, it?.fcstTime, "비/눈")
                             pFlag = true
                             return@breaker
                         }
                         "3" -> {
-                            msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "눈")
+                            msg0 = getPtyMsg(it?.fcstDate, it?.fcstTime, "눈")
                             pFlag = true
                             return@breaker
                         }
                         "4" -> {
-                            msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "소나기")
+                            msg0 = getPtyMsg(it?.fcstDate, it?.fcstTime, "소나기")
                             pFlag = true
                             return@breaker
                         }
@@ -280,19 +283,16 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
                 }
             }
         }
-        if(!pFlag) msg += "24시간 이내 강수 예보 없음\n"
-        msg += "오존 등급: ${measuredValue?.o3Grade.toString()}\n" +
-                "미세먼지 등급: ${measuredValue?.pm10Grade.toString()}\n" +
-                "초미세먼지 등급: ${measuredValue?.pm10Grade.toString()}"
-        return msg
+        if(!pFlag) msg0 = "24시간 이내 강수 예보 없음\n"
+
+        val msg1 = "오존 등급: ${measuredValue?.o3Grade.toString()}"
+        val msg2 = "미세먼지 등급: ${measuredValue?.pm10Grade.toString()}"
+        val msg3 = "초미세먼지 등급: ${measuredValue?.pm10Grade.toString()}"
+        return arrayOf(msg0, msg1, msg2, msg3)
     }
 
     private fun getPtyMsg(fcstDate: String?, fcstTime: String?, pty: String): String {
-        val today = if (fcstDate == getDate()) {
-            "오늘"
-        } else {
-            "내일"
-        }
+        val today = if (fcstDate == getDate()) "오늘" else "내일"
         var time = fcstTime
         time = time?.substring(0,2)
         return "$today ${time}시에 $pty 예보가 있어요.\n"

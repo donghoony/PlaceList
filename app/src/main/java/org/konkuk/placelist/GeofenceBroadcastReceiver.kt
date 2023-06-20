@@ -48,8 +48,8 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
         val triggeringGeofences = geofencingEvent.triggeringGeofences!!
         val transitionMsg = when (geofenceTransition) {
-            GEOFENCE_TRANSITION_ENTER -> "Enter"
-            GEOFENCE_TRANSITION_EXIT -> "Exit"
+            GEOFENCE_TRANSITION_ENTER -> "에 들어왔어요!"
+            GEOFENCE_TRANSITION_EXIT -> "에서 나갔어요!"
             else -> "DWELL"
         }
 
@@ -68,12 +68,12 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                     if (todo.isCompleted) continue
                     if (!checkTrigger(todo.situation, geofenceTransition)) continue
                     if ((todo.repeatDays and (1 shl (dayOfWeek - 1)) != 0) || todo.repeatDays == 0) {
-                        notificationMessage += todo.name + " "
+                        notificationMessage += todo.name + "\n"
                     }
                 }
                 createNotificationChannel(context)
                 if (notificationMessage.isNotBlank())
-                    showNotification(context, place.name + " " + transitionMsg, notificationMessage)
+                    showNotification(context, place.name + transitionMsg + " 잊으신 일은 없으신가요?", notificationMessage.trimEnd())
             }
         }
     }

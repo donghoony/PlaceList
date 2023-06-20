@@ -23,7 +23,7 @@
                 android:adjustViewBounds="true"
                 android:background="@android:color/transparent"
                 android:scaleType="fitCenter"
-                app:srcCompat="@drawable/btn_close"></ImageButton>
+                app:srcCompat="@drawable/btn_close"/>
 
         <!-- 할 일 -->
         <TextView
@@ -45,7 +45,7 @@
                 android:adjustViewBounds="true"
                 android:background="@android:color/transparent"
                 android:scaleType="fitCenter"
-                app:srcCompat="@drawable/btn_check"></ImageButton>
+                app:srcCompat="@drawable/btn_check"/>
     </LinearLayout>
 
     <!-- 하단 -->
@@ -63,7 +63,7 @@
                 android:fontFamily="@font/nanumsquareroundr"
                 android:text="해야 할 일"
                 android:textColor="@color/gray3"
-                android:textSize="13dp"></TextView>
+                android:textSize="13sp"/>
 
         <!-- 기억해야 할 일을 적어주세요 -->
         <EditText
@@ -80,7 +80,7 @@
                 android:padding="15dp"
                 android:hint="기억해야 할 일을 적어주세요"
                 android:textColor="@android:color/black"
-                android:textSize="15dp"></EditText>
+                android:textSize="15sp" />
 
         <!-- 알림 설정 -->
         <TextView
@@ -89,7 +89,7 @@
                 android:fontFamily="@font/nanumsquareroundr"
                 android:text="알림 설정"
                 android:textColor="@color/gray3"
-                android:textSize="13dp"></TextView>
+                android:textSize="13sp" />
 
         <!-- 나갈 때 / 들어올 때 토글 버튼 -->
         <LinearLayout
@@ -97,9 +97,32 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginTop="8dp"
+                android:layout_marginBottom="20dp"
                 android:padding="0dp">
 
-            <!-- 나갈 때 토글 버튼 -->
+            <ToggleButton
+                    android:id="@+id/inToggleButton"
+                    android:layout_width="0dp"
+                    android:layout_weight="3"
+                    android:layout_height="40dp"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:textOn="들어갈 때"
+                    android:textOff="들어갈 때"
+                    android:textColor="#FFE7E7"
+                    android:textSize="15sp"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+
+                    android:fontFamily="@font/nanumsquareroundb"
+                    android:drawableStart="@drawable/check_resize"
+                    android:background="@drawable/toggle_off" />
+
+            <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3"
+                />
+
             <ToggleButton
                     android:id="@+id/outToggleBtn"
                     android:layout_width="0dp"
@@ -110,35 +133,16 @@
                     android:textOn="나갈 때"
                     android:textOff="나갈 때"
                     android:textColor="#FFE7E7"
-                    android:textSize="15dp"
+                    android:textSize="15sp"
                     style="@style/Widget.AppCompat.Button.Borderless"
-                    android:fontFamily="@font/nanumsquareroundb"
-                    android:drawableLeft="@drawable/check_resize"
-                    android:background="@drawable/toggle_off" />
-            <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.3"
-                />
-            <!-- 들어올 때 토글 버튼 -->
-            <ToggleButton
-                    android:id="@+id/inToggleButton"
-                    android:layout_width="0dp"
-                    android:layout_weight="3"
-                    android:layout_height="40dp"
-                    android:paddingLeft="20dp"
-                    android:paddingRight="20dp"
-                    android:textOn="들어올 때"
-                    android:textOff="들어올 때"
-                    android:textColor="#FFE7E7"
-                    android:textSize="15dp"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-
                     android:fontFamily="@font/nanumsquareroundb"
                     android:drawableStart="@drawable/check_resize"
                     android:background="@drawable/toggle_off" />
 
+
         </LinearLayout>
+
+
 
         <!-- 시간 설정 -->
         <LinearLayout
@@ -151,19 +155,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/nanumsquareroundr"
-                    android:text="시간 설정"
-                    android:layout_gravity="center"
+                    android:text="반복 요일 설정"
                     android:textColor="@color/gray3"
-                    android:textSize="13dp"></TextView>
+                    android:textSize="13sp"/>
 
             <View
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_weight="1" />
 
-            <!-- 시간 설정 스위치 버튼 -->
             <Switch
-                    android:id="@+id/timeonoff"
+                    android:id="@+id/repeatSwitch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
@@ -176,119 +178,114 @@
 
         </LinearLayout>
 
-        <!-- 반복 -->
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:fontFamily="@font/nanumsquareroundr"
-                android:text="반복"
-                android:textColor="@color/gray3"
-                android:textSize="13dp"></TextView>
+
 
         <!-- 요일 -->
         <LinearLayout
+                android:id="@+id/repeatLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                android:animateLayoutChanges="true">
+
 
             <ToggleButton
                     android:id="@+id/sun"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textOn="일"
-                    android:textOff="일"
-                    android:background="@android:color/white"
+                    android:textOn="@string/sun"
+                    android:textOff="@string/sun"
+                    android:background="@color/white"
                     android:gravity="center"
                     android:textColor="@drawable/repeat_onoff"
                     android:fontFamily="@font/nanumsquareroundb"
                     android:stateListAnimator="@null"
-                    android:textSize="15dp" />
+                    android:textSize="15sp" />
 
             <ToggleButton
                     android:id="@+id/mon"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textOn="월"
-                    android:textOff="월"
-                    android:background="@android:color/white"
+                    android:textOn="@string/mon"
+                    android:textOff="@string/mon"
+                    android:background="@color/white"
                     android:gravity="center"
                     android:textColor="@drawable/repeat_onoff"
                     android:fontFamily="@font/nanumsquareroundb"
                     android:stateListAnimator="@null"
-
-                    android:textSize="15dp" />
+                    android:textSize="15sp" />
 
             <ToggleButton
                     android:id="@+id/tue"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textOn="화"
-                    android:textOff="화"
+                    android:textOn="@string/tue"
+                    android:textOff="@string/tue"
                     android:background="@android:color/white"
                     android:gravity="center"
                     android:textColor="@drawable/repeat_onoff"
                     android:fontFamily="@font/nanumsquareroundb"
                     android:stateListAnimator="@null"
 
-                    android:textSize="15dp" />
+                    android:textSize="15sp" />
 
             <ToggleButton
                     android:id="@+id/wed"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textOn="수"
-                    android:textOff="수"
+                    android:textOn="@string/wed"
+                    android:textOff="@string/wed"
                     android:background="@android:color/white"
                     android:gravity="center"
                     android:textColor="@drawable/repeat_onoff"
                     android:fontFamily="@font/nanumsquareroundb"
                     android:stateListAnimator="@null"
 
-                    android:textSize="15dp" />
+                    android:textSize="15sp" />
 
             <ToggleButton
                     android:id="@+id/thu"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textOn="목"
-                    android:textOff="목"
+                    android:textOn="@string/thu"
+                    android:textOff="@string/thu"
                     android:background="@android:color/white"
                     android:gravity="center"
                     android:textColor="@drawable/repeat_onoff"
                     android:fontFamily="@font/nanumsquareroundb"
                     android:stateListAnimator="@null"
 
-                    android:textSize="15dp" />
+                    android:textSize="15sp" />
 
             <ToggleButton
                     android:id="@+id/fri"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textOn="금"
-                    android:textOff="금"
+                    android:textOn="@string/fri"
+                    android:textOff="@string/fri"
                     android:background="@android:color/white"
                     android:gravity="center"
                     android:textColor="@drawable/repeat_onoff"
                     android:fontFamily="@font/nanumsquareroundb"
                     android:stateListAnimator="@null"
 
-                    android:textSize="15dp" />
+                    android:textSize="15sp" />
 
             <ToggleButton
                     android:id="@+id/sat"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textOn="토"
-                    android:textOff="토"
+                    android:textOn="@string/sat"
+                    android:textOff="@string/sat"
 
                     android:background="@android:color/white"
                     android:gravity="center"
@@ -296,7 +293,8 @@
                     android:fontFamily="@font/nanumsquareroundb"
                     android:stateListAnimator="@null"
 
-                    android:textSize="15dp" />
+                    android:textSize="15sp" />
+
 
         </LinearLayout>
 

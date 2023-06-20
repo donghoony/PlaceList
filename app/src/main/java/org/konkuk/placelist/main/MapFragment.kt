@@ -98,7 +98,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     val currentLocation = LatLng(lat, lng)
                     marker = mMap.addMarker(markerOptions.position(currentLocation))
                     mMap.addCircle(circleOptions.center(currentLocation).radius(radius))
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
                     model.setLiveData(currentLocation)
                 }
         else{
@@ -109,7 +109,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             val currentLocation = LatLng(place.latitude.toDouble(), place.longitude.toDouble())
             marker = mMap.addMarker(markerOptions.position(currentLocation))
             mMap.addCircle(circleOptions.center(currentLocation).radius(radius))
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
             model.setLiveData(currentLocation)
             model.setRange(place.detectRange)
         }

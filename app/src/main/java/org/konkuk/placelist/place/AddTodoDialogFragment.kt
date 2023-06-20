@@ -57,6 +57,11 @@ class AddTodoDialogFragment : DialogFragment() {
     private fun initButtons() {
         with(binding) {
             repeatToggleButtons = arrayOf(sun, mon, tue, wed, thu, fri, sat)
+
+            repeatSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+                repeatLayout.visibility = if (isChecked) View.VISIBLE else  View.GONE
+            }
+
             inToggleButton.setOnCheckedChangeListener { btn, isChecked ->
                 if (isChecked) btn.background = ResourcesCompat.getDrawable(resources,
                     R.drawable.toggle_on, null)
@@ -68,10 +73,6 @@ class AddTodoDialogFragment : DialogFragment() {
                     R.drawable.toggle_on, null)
                 else btn.background = ResourcesCompat.getDrawable(resources,
                     R.drawable.toggle_off, null)
-            }
-
-            timeonoff.setOnCheckedChangeListener { buttonView, isChecked ->
-
             }
 
             closeBtn.setOnClickListener {
@@ -87,6 +88,7 @@ class AddTodoDialogFragment : DialogFragment() {
                 // 일요일부터 2진수로 7개 (가장 오른쪽이 일요일) -> 1111111(2) : 모두 반복, 0000001 : 토요일만 반복
                 var todoId = 0L
                 if (todo != null) todoId = todo!!.id
+                if (!binding.repeatSwitch.isChecked) repeatValue = 0
                 addTodoListener.update(Todo(todoId, addTodoListener.getTodosPlaceId(), todoname.text.toString(), false, TodoPriority.MEDIUM, repeatValue, placeSituation))
                 dismiss()
             }

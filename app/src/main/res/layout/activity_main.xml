@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,6 +8,7 @@
     tools:context=".main.MainActivity">
 
     <LinearLayout
+            android:id="@+id/topLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
@@ -29,6 +30,7 @@
                 android:fontFamily="@font/nanumsquareroundb"
                 android:gravity="center"
                 android:text="내 장소"
+
                 android:textAlignment="center"
                 android:textSize="26sp" />
 
@@ -43,25 +45,58 @@
             android:layout_weight="1"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/btn_settings" />
+        </LinearLayout>
 
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true">
+        <TextView
+                android:id="@+id/helpText1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="아래 버튼을 눌러"
+                android:layout_gravity="center"
+                android:textColor="@color/gray3"
+                android:fontFamily="@font/nanumsquareroundr"
+                android:gravity="center"
+                android:textSize="15sp"
+                android:layout_marginBottom="10dp"
+                />
+        <TextView
+                android:id="@+id/helpText2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="내 장소를 추가해 보세요!"
+                android:layout_gravity="center"
+                android:textColor="@color/gray3"
+                android:textSize="15sp"
+                android:fontFamily="@font/nanumsquareroundr"
+                android:gravity="center"
+                />
     </LinearLayout>
-
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/placelist"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+            android:id="@+id/placelist"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/topLayout"
+            android:layout_alignBottom="@id/btn_plus"
+            android:layout_marginBottom="80dp" />
 
     <ImageButton
-        android:id="@+id/btn_plus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="-100dp"
-        android:adjustViewBounds="true"
-        android:background="@android:color/transparent"
-        android:maxWidth="80dp"
-        android:maxHeight="80dp"
-        android:scaleType="fitCenter"
-        app:srcCompat="@drawable/btn_plus" />
+            android:id="@+id/btn_plus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:background="@android:color/transparent"
+            android:maxWidth="80dp"
+            android:maxHeight="80dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/btn_plus"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            />
 
-</LinearLayout>
+</RelativeLayout>

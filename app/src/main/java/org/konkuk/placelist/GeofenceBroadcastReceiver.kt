@@ -69,12 +69,12 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                     if (todo.isCompleted) continue
                     if (!checkTrigger(todo.situation, geofenceTransition)) continue
                     if ((todo.repeatDays and (1 shl (dayOfWeek - 1)) != 0) || todo.repeatDays == 0) {
-                        notificationMessage += todo.name + "\n"
+                        notificationMessage += todo.name + ", "
                     }
                 }
                 createNotificationChannel(context)
                 if (notificationMessage.isNotBlank())
-                    showNotification(context, place, place.name + transitionMsg + " 잊으신 일은 없으신가요?", notificationMessage.trimEnd())
+                    showNotification(context, place, place.name + transitionMsg + " 잊으신 일은 없으신가요?", notificationMessage.substring(0, notificationMessage.length-2))
             }
         }
     }
@@ -82,7 +82,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
     private fun createNotificationChannel(context: Context) {
         val channelName = "할 일 알림"
         val channelDescription = "장소를 들어오고 나갈 때 알림을 보냅니다."
-        val channelImportance = NotificationManager.IMPORTANCE_DEFAULT
+        val channelImportance = NotificationManager.IMPORTANCE_HIGH
 
         val notificationChannel =
             NotificationChannel(CHANNEL_ID, channelName, channelImportance).apply {
@@ -114,7 +114,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             .setContentTitle(title)
             .setContentText(msg)
             .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
 
         val notificationManager = NotificationManagerCompat.from(context)

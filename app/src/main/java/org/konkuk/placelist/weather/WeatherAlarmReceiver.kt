@@ -231,7 +231,7 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         val channelId = "weather_channel"
         val channelName = "날씨 알림"
         val notificationChannel =
-            NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
+            NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH)
                 .apply {
                     enableLights(true)
                     lightColor = Color.BLUE
@@ -252,9 +252,11 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
             .setContentTitle(getHeadline())
             .setContentText("${getDate().substring(4, 6)}월 ${getDate().substring(6, 8)}일 $stationName 예보 확인하기")
-            .setSmallIcon(R.drawable.img_p)
+            .setSmallIcon(R.drawable.logo_placelist_vector)
+            .setColor(context.resources.getColor(R.color.red, null))
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setStyle(
                 NotificationCompat.InboxStyle()
                     .addLine(msgs[0])
@@ -268,6 +270,7 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         notificationManager.apply {
             createNotificationChannel(notificationChannel)
             notify(0, notification)
+
         }
     }
 

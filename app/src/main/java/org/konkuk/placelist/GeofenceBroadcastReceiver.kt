@@ -69,12 +69,12 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                     if (todo.isCompleted) continue
                     if (!checkTrigger(todo.situation, geofenceTransition)) continue
                     if ((todo.repeatDays and (1 shl (dayOfWeek - 1)) != 0) || todo.repeatDays == 0) {
-                        notificationMessage += todo.name + "\n"
+                        notificationMessage += todo.name + ", "
                     }
                 }
                 createNotificationChannel(context)
                 if (notificationMessage.isNotBlank())
-                    showNotification(context, place, place.name + transitionMsg + " 잊으신 일은 없으신가요?", notificationMessage.trimEnd())
+                    showNotification(context, place, place.name + transitionMsg + " 잊으신 일은 없으신가요?", notificationMessage.substring(0, notificationMessage.length-2))
             }
         }
     }

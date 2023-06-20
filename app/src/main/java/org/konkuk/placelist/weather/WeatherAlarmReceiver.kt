@@ -293,7 +293,7 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         } else {
             "내일"
         }
-        return "$today ${fcstTime}시에 $pty 예보가 있어요."
+        return "$today ${fcstTime}시에 $pty 예보가 있어요.\n"
     }
 
     private fun getDate(): String {

@@ -161,8 +161,8 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
                         val w = h*2/3
                         icon = Bitmap.createScaledBitmap(icon, w, h, false)
                         p.color = Color.parseColor("#FF5959")
-                        c.drawRoundRect(itemView.right.toFloat()-20 + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat()-20, 10f, 10f, p)
-                        c.drawBitmap(icon, itemView.right.toFloat() - w - 20, itemView.top.toFloat() + (itemView.bottom.toFloat() - itemView.top.toFloat() - h  + 10) / 2, p)
+                        c.drawRoundRect(itemView.right.toFloat()-20 + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat()-50, 10f, 10f, p)
+                        c.drawBitmap(icon, itemView.right.toFloat() - w - 20, itemView.top.toFloat() + (itemView.bottom.toFloat() - itemView.top.toFloat() - h - 20) / 2, p)
                     }
                     val alpha = MaterialColors.ALPHA_FULL - abs(dX) / viewHolder.itemView.width.toFloat()
                     viewHolder.itemView.alpha = alpha

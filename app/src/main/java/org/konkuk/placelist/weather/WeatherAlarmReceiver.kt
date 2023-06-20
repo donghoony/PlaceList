@@ -208,6 +208,25 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         //Toast.makeText(context, "set Alarm on $hour : $minute", Toast.LENGTH_SHORT).show()
     }
 
+    private fun getHeadline(): String {
+        if((measuredValue?.pm10Grade.toString() == "나쁨"
+            || measuredValue?.pm10Grade.toString() == "매우 나쁨"
+            || measuredValue?.pm25Grade.toString() == "나쁨"
+            || measuredValue?.pm25Grade.toString() == "매우 나쁨") && pFlag) {
+            return "우산, 마스크 챙겨가세요!"
+        }
+        else if (pFlag) {
+            return "비가 오는 하루, 우산 챙겨가세요!"
+        }else if (measuredValue?.pm10Grade.toString() == "나쁨"
+            || measuredValue?.pm10Grade.toString() == "매우 나쁨"
+            || measuredValue?.pm25Grade.toString() == "나쁨"
+            || measuredValue?.pm25Grade.toString() == "매우 나쁨") {
+            return "미세먼지 심한 하루, 마스크 챙겨가세요!"
+        }else {
+            return "오늘 하루는 맑아요!"
+        }
+    }
+
     private fun makeNotification(context: Context) {
         val channelId = "weather_channel"
         val channelName = "날씨 알림"
@@ -231,8 +250,8 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         )
         val msgs = getWeatherForecastMsg()
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
-            .setContentTitle("${getDate().substring(4, 6)}월 ${getDate().substring(6, 8)}일 날씨 알림")
-            .setContentText("$stationName 예보 확인하기")
+            .setContentTitle(getHeadline())
+            .setContentText("${getDate().substring(4, 6)}월 ${getDate().substring(6, 8)}일 $stationName 예보 확인하기")
             .setSmallIcon(R.drawable.img_p)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
@@ -254,10 +273,14 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
 
     private fun getWeatherForecastMsg(): Array<String> {
         var msg0 = ""
+        val calendar = Calendar.getInstance()
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val day = calendar.get(Calendar.DATE)
+
         run breaker@{
             weatherForecasts?.forEach {
                 //PTY: 강수정보
-                if (it?.category == "PTY") {
+                if (it?.category == "PTY" && it?.fcstDate!!.toInt() >= getDate().toInt() && it?.fcstTime!!.substring(0,2).toInt() > hour) {
                     when (it?.fcstValue) {
                         "1" -> {
                             msg0 = getPtyMsg(it?.fcstDate, it?.fcstTime, "비")
@@ -287,7 +310,7 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
 
         val msg1 = "오존 등급: ${measuredValue?.o3Grade.toString()}"
         val msg2 = "미세먼지 등급: ${measuredValue?.pm10Grade.toString()}"
-        val msg3 = "초미세먼지 등급: ${measuredValue?.pm10Grade.toString()}"
+        val msg3 = "초미세먼지 등급: ${measuredValue?.pm25Grade.toString()}"
         return arrayOf(msg0, msg1, msg2, msg3)
     }
 
@@ -295,7 +318,23 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         val today = if (fcstDate == getDate()) "오늘" else "내일"
         var time = fcstTime
         time = time?.substring(0,2)
-        return "$today ${time}시에 $pty 예보가 있어요.\n"
+        val regex = Regex("0[0-9]|1[0-1]")
+        var amPm = ""
+        if(regex.containsMatchIn(time!!)) {
+            amPm = "오전"
+            if(time == "00") {
+                time = "12"
+            }
+            else if(time != "10" && time !="11") {
+                time = time?.substring(1, 2)
+            }
+        } else {
+            amPm = "오후"
+            if(time != "12") {
+                time = (time.toInt() - 12).toString()
+            }
+        }
+        return "$today $amPm ${time}시에 $pty 예보가 있어요.\n"
     }
 
     private fun getDate(): String {

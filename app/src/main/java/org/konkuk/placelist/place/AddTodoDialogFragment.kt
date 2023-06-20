@@ -78,6 +78,10 @@ class AddTodoDialogFragment : DialogFragment() {
                 dismiss()
             }
             submitBtn.setOnClickListener {
+                if(binding.todoname.text.isBlank()) {
+                    binding.todoname.setHintTextColor(Color.parseColor("#FF8080"))
+                    return@setOnClickListener
+                }
                 val placeSituation = if (inToggleButton.isChecked and outToggleBtn.isChecked) PlaceSituation.BOTH else (if (inToggleButton.isChecked) PlaceSituation.ENTER else PlaceSituation.ESCAPE)
                 var repeatValue = 0
                 for(i in 0..6){

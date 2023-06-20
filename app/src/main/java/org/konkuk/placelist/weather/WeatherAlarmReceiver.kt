@@ -251,29 +251,31 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
 
     private fun getWeatherForecastMsg(): CharSequence? {
         var msg = ""
-        weatherForecasts?.forEach {
-            //PTY: 강수정보
-            if (it?.category == "PTY") {
-                when (it?.fcstValue) {
-                    "1" -> {
-                        msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "비")
-                        pFlag = true
-                        return@forEach
-                    }
-                    "2" -> {
-                        msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "비/눈")
-                        pFlag = true
-                        return@forEach
-                    }
-                    "3" -> {
-                        msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "눈")
-                        pFlag = true
-                        return@forEach
-                    }
-                    "4" -> {
-                        msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "소나기")
-                        pFlag = true
-                        return@forEach
+        run breaker@{
+            weatherForecasts?.forEach {
+                //PTY: 강수정보
+                if (it?.category == "PTY") {
+                    when (it?.fcstValue) {
+                        "1" -> {
+                            msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "비")
+                            pFlag = true
+                            return@breaker
+                        }
+                        "2" -> {
+                            msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "비/눈")
+                            pFlag = true
+                            return@breaker
+                        }
+                        "3" -> {
+                            msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "눈")
+                            pFlag = true
+                            return@breaker
+                        }
+                        "4" -> {
+                            msg += getPtyMsg(it?.fcstDate, it?.fcstTime, "소나기")
+                            pFlag = true
+                            return@breaker
+                        }
                     }
                 }
             }

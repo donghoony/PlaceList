@@ -14,6 +14,7 @@ import org.konkuk.placelist.weather.services.KmaApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import java.util.concurrent.TimeUnit
 
 object Repository {
     var gson = GsonBuilder().setLenient().create()
@@ -91,5 +92,7 @@ object Repository {
                         HttpLoggingInterceptor.Level.NONE
                     }
                 }
-            ).build()
+            )
+            .connectTimeout(2, TimeUnit.MINUTES)
+            .build()
 }

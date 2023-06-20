@@ -12,10 +12,12 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors.ALPHA_FULL
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.konkuk.placelist.MyGeofence
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.ActivityPlacesBinding
 import org.konkuk.placelist.domain.Place
@@ -28,6 +30,7 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
     lateinit var binding: ActivityPlacesBinding
     lateinit var place : Place
     lateinit var todoAdapter: TodoAdapter
+    lateinit var geo: MyGeofence
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPlacesBinding.inflate(layoutInflater)
@@ -36,6 +39,7 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
             intent.getSerializableExtra("place", Place::class.java)!!
         else intent.getSerializableExtra("place") as Place
 
+        geo = MyGeofence.getInstance()
         binding.name.text = place.name
         setContentView(binding.root)
         init()
@@ -46,7 +50,7 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
         binding.todolist.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         CoroutineScope(Dispatchers.IO).launch{
-            val items = db.TodoDao().findTodoByPlaceId(place.id) as ArrayList<Todo>
+            val items = db.TodoDao().findByPlaceId(place.id) as ArrayList<Todo>
             todoAdapter = TodoAdapter(db, items, place.id)
             todoAdapter.itemClickListener = object : TodoAdapter.OnItemClickListener {
                 override fun onItemClick(data: Todo, pos: Int) {
@@ -117,17 +121,19 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
         todoAdapter.addTodo(todo)
     }
 
-    override fun getTodosPlaceId(): Int {
+    override fun getTodosPlaceId(): Long {
         return place.id
     }
 
-    override fun addPlace(id: Int, name: String, latitude: String, longitude: String, radius: Float) {
+    override fun addPlace(id: Long, name: String, latitude: String, longitude: String, radius: Float) {
         // editPlace
         val db = PlacesListDatabase.getDatabase(this)
         val updatedPlace = Place(id, name, latitude, longitude, radius)
         CoroutineScope(Dispatchers.IO).launch {
             db.placesDao().update(updatedPlace)
         }
+        geo.removeGeofence(id)
+        geo.addGeofence(id, LatLng(latitude.toDouble(), longitude.toDouble()), radius)
         this@PlacesActivity.place = updatedPlace
         binding.name.text = name
     }

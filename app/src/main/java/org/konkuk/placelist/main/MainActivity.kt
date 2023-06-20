@@ -14,6 +14,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -28,19 +29,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.konkuk.placelist.MyGeofence
 import org.konkuk.placelist.PlacesListDatabase
 import org.konkuk.placelist.databinding.ActivityMainBinding
 import org.konkuk.placelist.domain.Place
 import org.konkuk.placelist.place.PlacesActivity
 import org.konkuk.placelist.setting.SettingsActivity
 import org.konkuk.placelist.weather.WeatherAlarmReceiver
+import java.util.*
 import java.util.Calendar
 import kotlin.math.abs
 
 class MainActivity : AppCompatActivity(), AddPlaceListener {
     lateinit var binding: ActivityMainBinding
     lateinit var placeAdapter: PlaceAdapter
-
+    lateinit var myGeofence: MyGeofence
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -49,10 +52,14 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         initPlaceView()
         getPermissions()
         initSettings()
+        initGeofence()
         setWeatherAlarm()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // Force Light Mode
     }
-
+    //geofence 객체 생성, database 삭제 추가 변경시 이 객체에서 ChangeData() 함수 호출해주면 됨
+    private fun initGeofence(){
+        myGeofence= MyGeofence.makeInstance(this)
+    }
     override fun onStart() {
         super.onStart()
         if(this::placeAdapter.isInitialized) placeAdapter.refresh()
@@ -161,6 +168,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
                     .setPositiveButton("삭제"){_, _ ->
                         CoroutineScope(Dispatchers.IO).launch{
                             db.placesDao().delete(placeAdapter.items[viewHolder.adapterPosition])
+                            myGeofence.removeGeofence(placeAdapter.items[viewHolder.adapterPosition].id)
                             withContext(Dispatchers.Main) {
                                 placeAdapter.removeItem(viewHolder.adapterPosition)
                             }
@@ -255,7 +263,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         }
     }
 
-    override fun addPlace(id: Int, name: String, latitude: String, longitude: String, radius: Float) {
-        placeAdapter.addPlace(0, name, latitude, longitude, radius)
+    override fun addPlace(id: Long, name: String, latitude: String, longitude: String, radius: Float) {
+        placeAdapter.addPlace(id, name, latitude, longitude, radius, myGeofence)
     }
 }

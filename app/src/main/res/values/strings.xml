@@ -1,6 +1,17 @@
 <resources>
     <string name="app_name">PlaceList</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="_100m">100m</string>
+    <string name="_200m">200m</string>
+    <string name="_500m">500m</string>
+    <string name="place_name">장소 이름</string>
+    <string name="enter_place_name">장소 이름을 입력하세요</string>
+    <string name="add_my_place">내 장소 추가</string>
+    <string name="submit">submit</string>
+    <string name="close">close</string>
+    <string name="enter_address">주소를 입력하세요</string>
+    <string name="location">위치</string>
+    <string name="detect_range">감지 범위</string>
     <string name="mon">월</string>
     <string name="tue">화</string>
     <string name="wed">수</string>
@@ -8,6 +19,4 @@
     <string name="fri">금</string>
     <string name="sat">토</string>
     <string name="sun">일</string>
-
-
 </resources>

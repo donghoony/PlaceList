@@ -23,6 +23,7 @@
             android:background="@android:color/transparent"
             android:layout_weight="1"
             android:scaleType="fitCenter"
+            android:contentDescription="@string/close"
             app:srcCompat="@drawable/btn_close">
         </ImageButton>
 
@@ -34,7 +35,7 @@
             android:layout_weight="5"
             android:fontFamily="@font/nanumsquareroundb"
             android:gravity="center"
-            android:text="내 장소 추가"
+            android:text="@string/add_my_place"
             android:textSize="20sp" />
 
         <!-- 체크 버튼 -->
@@ -46,6 +47,7 @@
             android:background="@android:color/transparent"
             android:layout_weight="1"
             android:scaleType="fitCenter"
+            android:contentDescription="@string/submit"
             app:srcCompat="@drawable/btn_check">
         </ImageButton>
     </LinearLayout>
@@ -63,7 +65,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/nanumsquareroundr"
-            android:text="장소 이름"
+            android:text="@string/place_name"
             android:textColor="@color/gray3"
             android:textSize="13sp">
         </TextView>
@@ -76,8 +78,9 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="20dp"
             android:padding="15dp"
-            android:hint="장소 이름을 입력하세요"
+            android:hint="@string/enter_place_name"
             android:inputType="text"
+            android:autofillHints="place"
             android:background="@drawable/textstyle3"
             android:fontFamily="@font/nanumsquareroundb"
             android:textSize="15sp">
@@ -89,7 +92,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/nanumsquareroundr"
-            android:text="위치"
+            android:text="@string/location"
             android:textColor="@color/gray3"
             android:textSize="13sp">
         </TextView>
@@ -106,7 +109,8 @@
                 android:fontFamily="@font/nanumsquareroundb"
                 android:inputType="text"
                 android:padding="15dp"
-                android:hint="주소를 입력하세요"
+                android:autofillHints="postalAddress"
+                android:hint="@string/enter_address"
                 android:layout_marginBottom="20dp"
                 android:textSize="15sp" />
 
@@ -117,26 +121,61 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top"
-                    android:layout_marginTop="5dp"
                     android:fontFamily="@font/nanumsquareroundr"
-                    android:text="감지 범위"
+                    android:text="@string/detect_range"
                     android:layout_weight="2"
                     android:textColor="@color/gray3"
                     android:textSize="13sp">
             </TextView>
 
-            <SeekBar
-                    android:id="@+id/radiusSeekbar"
-                    android:layout_gravity="right"
-                    android:layout_marginTop="8dp"
+            <LinearLayout
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:max="2"
-                    android:progress="0"
-                    style="@style/Widget.AppCompat.SeekBar.Discrete"
-                    android:thumb="@drawable/thumb_img"
-                    />
+                    android:orientation="vertical">
+                <SeekBar
+                        android:id="@+id/radiusSeekbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="2"
+                        android:progress="0"
+                        style="@style/Widget.AppCompat.SeekBar.Discrete"
+                        android:thumb="@drawable/thumb_img"
+                        />
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                    <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:text="@string/_100m"
+                            android:gravity="center"
+                            android:fontFamily="@font/nanumsquareroundr"
+                            android:textSize="11sp"
+                        />
+                    <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:text="@string/_200m"
+                            android:gravity="center"
+                            android:fontFamily="@font/nanumsquareroundr"
+                            android:textSize="11sp"
+                            />
+
+                    <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:text="@string/_500m"
+                            android:gravity="center"
+                            android:fontFamily="@font/nanumsquareroundr"
+                            android:textSize="11sp"
+                            />
+
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 

@@ -19,6 +19,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.gms.maps.model.LatLng
 import org.konkuk.placelist.MyViewModel
+import org.konkuk.placelist.R
 import org.konkuk.placelist.databinding.FragmentAddPlaceBinding
 import org.konkuk.placelist.domain.Place
 import java.util.Locale
@@ -99,6 +100,10 @@ class AddPlaceDialogFragment : DialogFragment() {
                 dismiss()
             }
             this.submitBtn.setOnClickListener {
+                if(binding.placename.text.isBlank()) {
+                    binding.placename.setHintTextColor(resources.getColor(R.color.red, null))
+                    return@setOnClickListener
+                }
                 val placeId = if (place != null) place!!.id else 0
                 if(model.location.value != null) {
                     val pos = model.location.value!!

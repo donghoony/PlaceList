@@ -2,6 +2,7 @@ package org.konkuk.placelist
 
 
 import android.Manifest
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -9,7 +10,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
+import android.graphics.Color
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -23,11 +24,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.konkuk.placelist.domain.enums.PlaceSituation
 import org.konkuk.placelist.main.MainActivity
-import java.util.*
+import java.util.Calendar
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
-    private val CHANNEL_ID = "my_channel_id"
-    private var notificationIdCounter = 0
+    private val CHANNEL_ID = "todo_channel"
+    private var notificationIdCounter = 1 // Weather : 0
 
     private fun checkTrigger(desiredSituation: PlaceSituation, transition: Int) : Boolean{
         if (desiredSituation == PlaceSituation.BOTH &&
@@ -78,23 +79,24 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
     }
 
     private fun createNotificationChannel(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelName = "My Channel"
-            val channelDescription = "My Channel Description"
-            val channelImportance = NotificationManager.IMPORTANCE_DEFAULT
+        val channelName = "할 일 알림"
+        val channelDescription = "장소를 들어오고 나갈 때 알림을 보냅니다."
+        val channelImportance = NotificationManager.IMPORTANCE_DEFAULT
 
-            val notificationChannel =
-                NotificationChannel(CHANNEL_ID, channelName, channelImportance)
-            notificationChannel.description = channelDescription
+        val notificationChannel =
+            NotificationChannel(CHANNEL_ID, channelName, channelImportance).apply {
+                enableLights(true)
+                lightColor = Color.BLUE
+                lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+            }
+        notificationChannel.description = channelDescription
 
-            val notificationManager = context.getSystemService(NotificationManager::class.java)
-            notificationManager.createNotificationChannel(notificationChannel)
-        }
+        val notificationManager = context.getSystemService(NotificationManager::class.java)
+        notificationManager.createNotificationChannel(notificationChannel)
     }
 
     private fun showNotification(context: Context, title: String, msg: String) {
         val notificationId = notificationIdCounter++
-
         val intent = Intent(context, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val pendingIntent = PendingIntent.getActivity(

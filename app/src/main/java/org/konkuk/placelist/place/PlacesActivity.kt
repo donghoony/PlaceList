@@ -11,8 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.color.MaterialColors.ALPHA_FULL
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.color.MaterialColors.ALPHA_FULL
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -62,7 +62,7 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
                 override fun onItemCheck(data: Todo, pos: Int, isChecked: Boolean) {
                     val db = PlacesListDatabase.getDatabase(this@PlacesActivity)
                     //update isCompleted
-                    val updatedTodo = Todo(data.id, data.placeId, data.name, isCompleted = !isChecked, data.priority, data.repeatDays, data.situation)
+                    val updatedTodo = Todo(data.id, data.placeId, data.name, isChecked, data.priority, data.repeatDays, data.situation)
                     CoroutineScope(Dispatchers.IO).launch {
                         db.TodoDao().update(updatedTodo)
                     }
@@ -119,6 +119,7 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
 
     override fun update(todo: Todo) {
         todoAdapter.addTodo(todo)
+
     }
 
     override fun getTodosPlaceId(): Long {

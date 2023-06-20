@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -101,7 +102,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     model.setLiveData(currentLocation)
                 }
         else{
-            val place = requireParentFragment().requireArguments().getSerializable("place", Place::class.java)!!
+            val place = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                requireParentFragment().requireArguments().getSerializable("place", Place::class.java)!!
+            else
+                requireParentFragment().requireArguments().getSerializable("place")!! as Place
             val currentLocation = LatLng(place.latitude.toDouble(), place.longitude.toDouble())
             marker = mMap.addMarker(markerOptions.position(currentLocation))
             mMap.addCircle(circleOptions.center(currentLocation).radius(radius))

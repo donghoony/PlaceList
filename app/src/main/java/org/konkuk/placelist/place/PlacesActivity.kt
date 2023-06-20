@@ -2,7 +2,6 @@ package org.konkuk.placelist.place
 
 import android.os.Build
 import android.os.Bundle
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,7 +17,6 @@ import org.konkuk.placelist.domain.Todo
 import org.konkuk.placelist.main.AddPlaceDialogFragment
 import org.konkuk.placelist.main.AddPlaceListener
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
     lateinit var binding: ActivityPlacesBinding
     lateinit var place : Place
@@ -27,7 +25,10 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
         super.onCreate(savedInstanceState)
         binding = ActivityPlacesBinding.inflate(layoutInflater)
 
-        place = intent.getSerializableExtra("place", Place::class.java)!!
+        place = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            intent.getSerializableExtra("place", Place::class.java)!!
+        else intent.getSerializableExtra("place") as Place
+
         binding.name.text = place.name
         setContentView(binding.root)
         init()

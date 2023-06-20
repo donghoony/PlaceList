@@ -14,6 +14,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -63,6 +64,16 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         if(this::placeAdapter.isInitialized) placeAdapter.refresh()
     }
 
+    private fun updateVisibility(force: Boolean = false){
+        if (placeAdapter.items.isNotEmpty() or force){
+            binding.helpText1.visibility = View.GONE
+            binding.helpText2.visibility = View.GONE
+        }
+        else{
+            binding.helpText1.visibility = View.VISIBLE
+            binding.helpText2.visibility = View.VISIBLE
+        }
+    }
 
     private fun initSettings() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
@@ -134,6 +145,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
             }
             withContext(Dispatchers.Main){
                 binding.placelist.adapter = placeAdapter
+                updateVisibility()
             }
         }
         val simpleCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
@@ -169,6 +181,7 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
                             myGeofence.removeGeofence(placeAdapter.items[viewHolder.adapterPosition].id)
                             withContext(Dispatchers.Main) {
                                 placeAdapter.removeItem(viewHolder.adapterPosition)
+                                updateVisibility()
                             }
                         }
                     }
@@ -263,5 +276,6 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
 
     override fun addPlace(id: Long, name: String, latitude: String, longitude: String, radius: Float) {
         placeAdapter.addPlace(id, name, latitude, longitude, radius, myGeofence)
+        updateVisibility(true)
     }
 }

@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,6 +32,17 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
     lateinit var place : Place
     lateinit var todoAdapter: TodoAdapter
     lateinit var geo: MyGeofence
+
+    private fun updateVisibility(force: Boolean = false){
+        if (todoAdapter.items.isNotEmpty() or force){
+            binding.helpText1.visibility = View.GONE
+            binding.helpText2.visibility = View.GONE
+        }
+        else{
+            binding.helpText1.visibility = View.VISIBLE
+            binding.helpText2.visibility = View.VISIBLE
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPlacesBinding.inflate(layoutInflater)
@@ -52,6 +64,7 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
         CoroutineScope(Dispatchers.IO).launch{
             val items = db.TodoDao().findByPlaceId(place.id) as ArrayList<Todo>
             todoAdapter = TodoAdapter(db, items, place.id)
+            updateVisibility()
             todoAdapter.itemClickListener = object : TodoAdapter.OnItemClickListener {
                 override fun onItemClick(data: Todo, pos: Int) {
                     // 수정은 여기에서 진행해야 함
@@ -98,6 +111,7 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
                     db.TodoDao().delete(todoAdapter.items[viewHolder.adapterPosition])
                     withContext(Dispatchers.Main) {
                         todoAdapter.removeItem(viewHolder.adapterPosition)
+                        updateVisibility()
                     }
                 }
             }
@@ -119,7 +133,7 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
 
     override fun update(todo: Todo) {
         todoAdapter.addTodo(todo)
-
+        updateVisibility(true)
     }
 
     override fun getTodosPlaceId(): Long {
@@ -137,5 +151,6 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
         geo.addGeofence(id, LatLng(latitude.toDouble(), longitude.toDouble()), radius)
         this@PlacesActivity.place = updatedPlace
         binding.name.text = name
+        updateVisibility(true)
     }
 }

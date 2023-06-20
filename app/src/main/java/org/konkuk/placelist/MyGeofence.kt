@@ -18,21 +18,13 @@ class MyGeofence(private val context: Context) :Serializable {
     private val geofencingClient: GeofencingClient = LocationServices.getGeofencingClient(context)
 
     companion object {
-        private var instance: MyGeofence? = null
-        fun makeInstance(context: Context): MyGeofence {
-            return instance ?: synchronized(this) {
-                instance ?: MyGeofence(context).also { instance = it }
-            }
-        }
-        fun getInstance(): MyGeofence {
-            if (instance == null) {
-                synchronized(this) {
-                    if (instance == null) {
-                        throw IllegalStateException("MyGeofence is not initialized.")
-                    }
-                }
-            }
-            return instance!!
+        var INSTANCE: MyGeofence? = null
+        fun getInstance(context: Context): MyGeofence {
+            val instance = INSTANCE
+            if (instance != null) return instance
+            val newInstance = MyGeofence(context)
+            INSTANCE = newInstance
+            return newInstance
         }
     }
 

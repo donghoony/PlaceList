@@ -51,7 +51,7 @@ class PlacesActivity : AppCompatActivity(), AddTodoListener, AddPlaceListener {
             intent.getSerializableExtra("place", Place::class.java)!!
         else intent.getSerializableExtra("place") as Place
 
-        geo = MyGeofence.getInstance()
+        geo = MyGeofence.getInstance(applicationContext)
         binding.name.text = place.name
         setContentView(binding.root)
         init()

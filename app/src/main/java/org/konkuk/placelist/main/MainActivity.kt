@@ -23,6 +23,7 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,7 +35,6 @@ import org.konkuk.placelist.place.PlacesActivity
 import org.konkuk.placelist.setting.SettingsActivity
 import org.konkuk.placelist.weather.WeatherAlarmReceiver
 import java.util.Calendar
-import java.util.*
 import kotlin.math.abs
 
 class MainActivity : AppCompatActivity(), AddPlaceListener {

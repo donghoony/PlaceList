@@ -234,7 +234,7 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
             val notificationBuilder = NotificationCompat.Builder(context, channelId)
                 .setContentTitle("날씨 알림")
                 .setContentText("$stationName 예보 확인하기")
-                .setSmallIcon(R.drawable.img_p)
+                .setSmallIcon(R.drawable.img_p_vector)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
                 .setStyle(

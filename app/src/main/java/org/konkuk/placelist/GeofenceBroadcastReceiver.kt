@@ -22,8 +22,9 @@ import com.google.android.gms.location.GeofencingEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.konkuk.placelist.domain.Place
 import org.konkuk.placelist.domain.enums.PlaceSituation
-import org.konkuk.placelist.main.MainActivity
+import org.konkuk.placelist.place.PlacesActivity
 import java.util.Calendar
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
@@ -73,7 +74,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                 }
                 createNotificationChannel(context)
                 if (notificationMessage.isNotBlank())
-                    showNotification(context, place.name + transitionMsg + " 잊으신 일은 없으신가요?", notificationMessage.trimEnd())
+                    showNotification(context, place, place.name + transitionMsg + " 잊으신 일은 없으신가요?", notificationMessage.trimEnd())
             }
         }
     }
@@ -95,9 +96,10 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         notificationManager.createNotificationChannel(notificationChannel)
     }
 
-    private fun showNotification(context: Context, title: String, msg: String) {
+    private fun showNotification(context: Context, place : Place, title: String, msg: String) {
         val notificationId = notificationIdCounter++
-        val intent = Intent(context, MainActivity::class.java)
+        val intent = Intent(context, PlacesActivity::class.java)
+        intent.putExtra("place", place)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val pendingIntent = PendingIntent.getActivity(
             context,

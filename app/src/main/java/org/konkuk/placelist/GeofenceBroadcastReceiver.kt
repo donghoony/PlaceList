@@ -105,7 +105,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         )
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.img_p)
+            .setSmallIcon(R.drawable.img_p_vector)
             .setContentTitle(title)
             .setContentText(msg)
             .setContentIntent(pendingIntent)

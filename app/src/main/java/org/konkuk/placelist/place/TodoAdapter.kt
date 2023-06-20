@@ -21,8 +21,9 @@ class TodoAdapter(private val db: PlacesListDatabase, var items : ArrayList<Todo
     var itemClickListener : OnItemClickListener? = null
     inner class ViewHolder(val binding: TodoRowBinding) : RecyclerView.ViewHolder(binding.root){
         init{
-            binding.root.setOnClickListener{
+            binding.todoCheck.setOnLongClickListener {
                 itemClickListener?.onItemClick(items[adapterPosition], adapterPosition)
+                true
             }
             binding.todoCheck.setOnClickListener {
                 itemClickListener?.onItemCheck(items[adapterPosition], adapterPosition, binding.todoCheck.isChecked)

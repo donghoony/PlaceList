@@ -14,9 +14,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -36,10 +34,9 @@ import org.konkuk.placelist.domain.Place
 import org.konkuk.placelist.place.PlacesActivity
 import org.konkuk.placelist.setting.SettingsActivity
 import org.konkuk.placelist.weather.WeatherAlarmReceiver
-import java.util.*
+import java.util.Calendar
 import kotlin.math.abs
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class MainActivity : AppCompatActivity(), AddPlaceListener {
     lateinit var binding: ActivityMainBinding
     lateinit var placeAdapter: PlaceAdapter
@@ -73,9 +70,6 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
                 .putString("minute", "0")
                 .apply()
         }
-//        val hour = prefs.getString("notification_hour", "6")
-//        val minute = prefs.getString("notification_minute", "0")
-//        Toast.makeText(this, hour.toString() + ":" + minute.toString(), Toast.LENGTH_SHORT).show()
     }
 
     private fun setWeatherAlarm() {
@@ -93,12 +87,10 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         }
         val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if(!alarmManager.canScheduleExactAlarms()) {
-                Intent().also {
-                    it.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
-                    this.startActivity(intent)
-                }
+        if(!alarmManager.canScheduleExactAlarms()) {
+            Intent().also {
+                it.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
+                this.startActivity(intent)
             }
         }
 
@@ -112,14 +104,11 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
             if(calendar.before(Calendar.getInstance())) {
                 calendar.add(Calendar.DATE, 1)
             }
-            //alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent)
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent
             )
-            //Toast.makeText(this, "set Alarm on $hour : $minute", Toast.LENGTH_SHORT).show()
         } else {
             alarmManager.cancel(pendingIntent)
-            //Toast.makeText(this, "set Alarm off", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -133,12 +122,6 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
             placeAdapter = PlaceAdapter(db, items)
             placeAdapter.itemClickListener = object : PlaceAdapter.OnItemClickListener {
                 override fun onItemClick(data: Place, pos: Int) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        "${data.name} : ${data.latitude}, ${data.longitude}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
                     val intent = Intent(this@MainActivity, PlacesActivity::class.java)
                     intent.putExtra("place", data)
                     startActivity(intent)
@@ -200,11 +183,18 @@ class MainActivity : AppCompatActivity(), AddPlaceListener {
         lateinit var dialog: AlertDialog
         lateinit var backgroundDialog: AlertDialog
 
-        val permissions = arrayOf(
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION,
-            android.Manifest.permission.POST_NOTIFICATIONS
-        )
+        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            )
+        } else {
+            arrayOf(
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        }
 
         fun checkPermission(permission: String) =
             ActivityCompat.checkSelfPermission(

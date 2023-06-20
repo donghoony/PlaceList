@@ -231,7 +231,7 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         )
 
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
-            .setContentTitle("날씨 알림")
+            .setContentTitle("${getDate().substring(4, 6)}월 ${getDate().substring(6, 8)}일 날씨 알림")
             .setContentText("$stationName 예보 확인하기")
             .setSmallIcon(R.drawable.img_p)
             .setAutoCancel(true)
@@ -283,7 +283,7 @@ class WeatherAlarmReceiver : BroadcastReceiver() {
         if(!pFlag) msg += "24시간 이내 강수 예보 없음\n"
         msg += "오존 등급: ${measuredValue?.o3Grade.toString()}\n" +
                 "미세먼지 등급: ${measuredValue?.pm10Grade.toString()}\n" +
-                "초미세먼지 등급: ${measuredValue?.pm10Grade.toString()}\n"
+                "초미세먼지 등급: ${measuredValue?.pm10Grade.toString()}"
         return msg
     }
 

@@ -15,7 +15,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.SeekBar
 import android.widget.Toast
-import androidx.core.graphics.red
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.gms.maps.model.LatLng
@@ -102,7 +101,7 @@ class AddPlaceDialogFragment : DialogFragment() {
             }
             this.submitBtn.setOnClickListener {
                 if(binding.placename.text.isBlank()) {
-                    binding.placename.setHintTextColor(Color.parseColor("#FF8080"))
+                    binding.placename.setHintTextColor(resources.getColor(R.color.red, null))
                     return@setOnClickListener
                 }
                 val placeId = if (place != null) place!!.id else 0

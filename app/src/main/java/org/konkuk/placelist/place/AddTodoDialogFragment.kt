@@ -79,7 +79,7 @@ class AddTodoDialogFragment : DialogFragment() {
             }
             submitBtn.setOnClickListener {
                 if(binding.todoname.text.isBlank()) {
-                    binding.todoname.setHintTextColor(Color.parseColor("#FF8080"))
+                    binding.todoname.setHintTextColor(resources.getColor(R.color.red, null))
                     return@setOnClickListener
                 }
                 val placeSituation = if (inToggleButton.isChecked and outToggleBtn.isChecked) PlaceSituation.BOTH else (if (inToggleButton.isChecked) PlaceSituation.ENTER else PlaceSituation.ESCAPE)
